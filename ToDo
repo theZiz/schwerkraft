@@ -1,1 +1,24 @@
 Roadmap:
+- new planets (10?)
+- random level creation
+- show level
+- different planet types (use uniform!)
+  - "normal" planets
+  - rotating planets (e.g. around another one => moons)
+  - gas planets (gravity, but no collision)
+- game itself
+  - gravity (depends on the radius and mass, bigger gas planets are still lighter)
+  - bullet has mass, speed and direction
+  - showing the old trys in different colors
+    - shaping the position of the rotating objects
+- some planets with light source ("stars")
+- ships as goal
+- Menu
+- Tutorial
+  - every different planet step by step
+- different bullet types?
+- particles
+- planets can have damage? (getting smaller?)
+- highscore
+  - more power => fewer points
+  - more time used => fewer points
