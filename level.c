@@ -20,6 +20,7 @@
 
 #include "level.h"
 #include <fcntl.h>
+#include "font.h"
 
 SDL_Surface* planet_texture[10];
 spModelPointer planet[10];
@@ -60,6 +61,8 @@ void createRandomLevel()
   level.ship[1].y = rand()%((1<<SP_ACCURACY+1)+1-(1<<SP_ACCURACY-1))-(1<<SP_ACCURACY)+(1<<SP_ACCURACY-2); //position between -1 and 1
   level.ship[0].direction =   SP_PI/2;
   level.ship[1].direction = 3*SP_PI/2;
+  level.ship[0].energy = 1<<SP_ACCURACY-1; //1/2
+  level.ship[1].energy = 1<<SP_ACCURACY-1; //1/2
   momPlayer = 0;
 }
 
@@ -67,18 +70,20 @@ void drawLevel()
 {
   Sint32 matrix[16];
   //TODO: More accurate zoom
-  spTranslate(0,0,(-7<<SP_ACCURACY-2)-level.width);
+  spTranslate(0,0,(-6<<SP_ACCURACY-2)-level.width);
 
   //Game Rectangle
-  spRectangleBorder3D(0,0,0,level.width*2,2<<SP_ACCURACY,1<<SP_ACCURACY-5,1<<SP_ACCURACY-5,spGetHSV(0,0,64));
+  //spRectangleBorder3D(0,0,0,level.width*2,2<<SP_ACCURACY,1<<SP_ACCURACY-5,1<<SP_ACCURACY-5,spGetHSV(0,0,64));
+
+  char buffer[256];
 
   //Drawing the left ship, direction and energy
   //TODO: 20% cooler
   memcpy(matrix,spGetMatrix(),64); //"glPush"
   spTranslate(-level.width,level.ship[0].y,0);
-  Sint32 x = spMul(spSin(level.ship[0].direction),1<<SP_ACCURACY-3);
-  Sint32 y = spMul(spCos(level.ship[0].direction),1<<SP_ACCURACY-3);
-  spLine3D(0,0,0,x,y,0,65535);
+  Sint32 x = spMul(spSin(level.ship[0].direction),level.ship[0].energy/2);
+  Sint32 y = spMul(spCos(level.ship[0].direction),level.ship[0].energy/2);
+  spLine3D(0,0,0,x,y,0,32768);
   spRotateX(SP_PI/2);
   spMesh3D(ship[0],0);
   memcpy(spGetMatrix(),matrix,64); //"glPop"
@@ -87,9 +92,9 @@ void drawLevel()
   //TODO: 20% cooler
   memcpy(matrix,spGetMatrix(),64); //"glPush"
   spTranslate(+level.width,level.ship[1].y,0);
-  x = spMul(spSin(level.ship[1].direction),1<<SP_ACCURACY-3);
-  y = spMul(spCos(level.ship[1].direction),1<<SP_ACCURACY-3);
-  spLine3D(x,y,0,0,0,0,65535);
+  x = spMul(spSin(level.ship[1].direction),level.ship[1].energy/2);
+  y = spMul(spCos(level.ship[1].direction),level.ship[1].energy/2);
+  spLine3D(0,0,0,x,y,0,32768);
   spRotateX(SP_PI/2);
   spMesh3D(ship[1],0);
   memcpy(spGetMatrix(),matrix,64); //"glPop"
@@ -115,17 +120,52 @@ void calcLevel(Sint32 steps)
   levelTime+=steps;
   
   //ship control
-  if (spGetInput()->axis[1]>0)
+  if (!momPlayer)
   {
-    level.ship[momPlayer].y+=steps<<SP_ACCURACY-11;
-    if (level.ship[momPlayer].y > (1<<SP_ACCURACY)-(1<<SP_ACCURACY-3))
-      level.ship[momPlayer].y = (1<<SP_ACCURACY)-(1<<SP_ACCURACY-3);
+    if (spGetInput()->axis[1]<0)
+    {
+      level.ship[momPlayer].direction+=steps<<SP_ACCURACY-10;
+      if (level.ship[momPlayer].direction >= SP_PI)
+        level.ship[momPlayer].direction = SP_PI-(1<<SP_ACCURACY-10);
+    }
+    if (spGetInput()->axis[1]>0)
+    {
+      level.ship[momPlayer].direction-=steps<<SP_ACCURACY-10;
+      if (level.ship[momPlayer].direction <= 0)
+        level.ship[momPlayer].direction = (1<<SP_ACCURACY-10);
+    }
   }
-  if (spGetInput()->axis[1]<0)
+  else
   {
-    level.ship[momPlayer].y-=steps<<SP_ACCURACY-11;
-    if (level.ship[momPlayer].y < -(1<<SP_ACCURACY)+(1<<SP_ACCURACY-3))
-      level.ship[momPlayer].y = -(1<<SP_ACCURACY)+(1<<SP_ACCURACY-3);
+    if (spGetInput()->axis[1]>0)
+    {
+      level.ship[momPlayer].direction+=steps<<SP_ACCURACY-9;
+      if (level.ship[momPlayer].direction >= 2*SP_PI)
+        level.ship[momPlayer].direction = 2*SP_PI-(1<<SP_ACCURACY-10);
+    }
+    if (spGetInput()->axis[1]<0)
+    {
+      level.ship[momPlayer].direction-=steps<<SP_ACCURACY-9;
+      if (level.ship[momPlayer].direction <= SP_PI)
+        level.ship[momPlayer].direction = SP_PI+(1<<SP_ACCURACY-10);
+    }
+  }
+  if ((!momPlayer && spGetInput()->axis[0]<0) || (momPlayer && spGetInput()->axis[0]>0))
+  {
+    level.ship[momPlayer].energy-=steps<<SP_ACCURACY-10;
+    if (level.ship[momPlayer].energy < (1<<SP_ACCURACY-3))
+      level.ship[momPlayer].energy = 1<<SP_ACCURACY-3;
+  }
+  if ((!momPlayer && spGetInput()->axis[0]>0) || (momPlayer && spGetInput()->axis[0]<0))
+  {
+    level.ship[momPlayer].energy+=steps<<SP_ACCURACY-10;
+    if (level.ship[momPlayer].energy > (2<<SP_ACCURACY))
+      level.ship[momPlayer].energy = 2<<SP_ACCURACY;
+  }
+  if (spGetInput()->button[SP_BUTTON_A])
+  {
+    spGetInput()->button[SP_BUTTON_A] = 0;
+    momPlayer = 1-momPlayer;
   }
   
 }

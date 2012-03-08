@@ -1,6 +1,7 @@
 Roadmap:
 + new planets (10?)
-- different planet types (use uniform!)
++ cool font
+- different planet types
   - "normal" planets
   - rotating planets (e.g. around another one => moons)
   - gas planets (gravity, but no collision)

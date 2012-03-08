@@ -25,8 +25,8 @@
 typedef struct sShip *pShip;
 typedef struct sShip {
   Sint32 y;
-  Sint32 direction;
-  Sint32 energy;
+  Sint32 direction; //0..pi or pi..2pi
+  Sint32 energy; //0.1 .. 2.0
 } tShip;
 
 #endif
