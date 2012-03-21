@@ -7,7 +7,7 @@ SDL_Surface* screen;
 void draw_function(void)
 {
   spResetZBuffer();
-  spClearTarget(0);
+  spClearTarget(3);
   spIdentity();
 
   spSetZSet(1);

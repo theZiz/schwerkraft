@@ -1,12 +1,12 @@
 Roadmap:
 + new planets (10?)
 + cool font
-- different planet types
-  - "normal" planets
++ different planet types
+  + "normal" planets
+  + gas planets (gravity, but no collision)
   - rotating planets (e.g. around another one => moons)
-  - gas planets (gravity, but no collision)
-- random level creation
-- show level
++ random level creation
++ show level
 - game itself
   - gravity (depends on the radius and mass, bigger gas planets are still lighter)
   - bullet has mass, speed and direction

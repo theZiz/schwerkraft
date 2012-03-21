@@ -34,6 +34,7 @@ typedef struct sLevel {
 
 void initLevel();
 void createRandomLevel();
+void deleteLevel();
 void drawLevel();
 void calcLevel(Sint32 steps);
 void quitLevel();

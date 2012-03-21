@@ -23,7 +23,6 @@
 #include "font.h"
 
 SDL_Surface* planet_texture[10];
-spModelPointer planet[10];
 spModelPointer ship[2];
 Sint32 levelTime = 0;
 tLevel level;
@@ -44,7 +43,6 @@ void initLevel()
     sprintf(buffer,"./data/planet%02i.png",i+1);
     printf("Loading %s\n",buffer);
     planet_texture[i] = spLoadSurface(buffer);
-    planet[i] = spMeshLoadObjSize("./data/planet.obj",planet_texture[i],65535,3<<SP_ACCURACY-2);
   }
   ship[0] = spMeshLoadObjSize("./data/ship.obj",NULL,12345,1<<SP_ACCURACY-3);
   ship[1] = spMeshLoadObjSize("./data/ship.obj",NULL,23456,1<<SP_ACCURACY-3);
@@ -53,10 +51,66 @@ void initLevel()
     ship[1]->point[i].x = -ship[1]->point[i].x;
 }
 
+#define MIN_PLANETS 1
+#define MAX_PLANETS 5
+
 void createRandomLevel()
 {
+  deleteLevel();
   level.width = rand()%(1<<SP_ACCURACY)+(1<<SP_ACCURACY); //width between 1 and 2
   level.firstPlanet = NULL;
+  //Creating random planets
+  int planet_count = rand()%(MAX_PLANETS+1-MIN_PLANETS)+MIN_PLANETS;
+  int i;
+  for (i = 0; i < planet_count; i++)
+  {
+    pPlanet planet = (pPlanet)malloc(sizeof(tPlanet));
+    planet->radius = rand()%(1<<SP_ACCURACY-1)+(1<<SP_ACCURACY-4);
+    int too_near = 1;
+    int count = 0;
+    while (too_near)
+    {
+      count++;
+      if (count > 100)
+        break;
+      planet->x = rand()%(level.width*2-planet->radius*2+1)-level.width+planet->radius;
+      planet->y = rand()%((1<<SP_ACCURACY)*2-planet->radius*2+1)-(1<<SP_ACCURACY)+planet->radius;
+      too_near = 0;
+      pPlanet other = level.firstPlanet;
+      while (other)
+      {
+        if ((planet->x-other->x >> 4)*(planet->x-other->x >> 4) +
+            (planet->y-other->y >> 4)*(planet->y-other->y >> 4) <
+            (planet->radius+other->radius >> 3)*(planet->radius+other->radius >> 3))
+        too_near = 1;
+        other = other->next;
+      }
+    }
+    if (count > 100)
+    {
+      printf("Finished infinite loop\n");
+      free(planet);
+      continue;
+    }
+    planet->mass = rand()%(spMul(planet->radius*planet->radius,planet->radius));
+    planet->kind = rand()%2;
+    if (planet->kind == PLANET_NORMAL)
+      planet->mesh = spMeshLoadObjSize("./data/planet.obj",planet_texture[rand()%6],65535,planet->radius);
+    else
+      planet->mesh = spMeshLoadObjSize("./data/planet.obj",planet_texture[rand()%4+6],65535,planet->radius);
+    planet->rx = 0;
+    planet->ry = 0;
+    planet->rz = 0;
+    planet->dx = rand()%33-16;
+    planet->dy = rand()%33-16;
+    planet->dz = rand()%33-16;
+    planet->satellite = 0;
+    planet->next = level.firstPlanet;
+    level.firstPlanet = planet;
+    
+  }
+  
+  //Setting random positions for the ships
   level.ship[0].y = rand()%((1<<SP_ACCURACY+1)+1-(1<<SP_ACCURACY-1))-(1<<SP_ACCURACY)+(1<<SP_ACCURACY-2); //position between -1 and 1
   level.ship[1].y = rand()%((1<<SP_ACCURACY+1)+1-(1<<SP_ACCURACY-1))-(1<<SP_ACCURACY)+(1<<SP_ACCURACY-2); //position between -1 and 1
   level.ship[0].direction =   SP_PI/2;
@@ -64,6 +118,19 @@ void createRandomLevel()
   level.ship[0].energy = 1<<SP_ACCURACY-1; //1/2
   level.ship[1].energy = 1<<SP_ACCURACY-1; //1/2
   momPlayer = 0;
+}
+
+void deleteLevel()
+{
+  pPlanet planet = level.firstPlanet;
+  while (planet != NULL)
+  {
+    spMeshDelete(planet->mesh);
+    pPlanet next = planet->next;
+    free(planet);
+    planet = next;
+  }
+  level.firstPlanet = NULL;
 }
 
 void drawLevel()
@@ -99,25 +166,32 @@ void drawLevel()
   spMesh3D(ship[1],0);
   memcpy(spGetMatrix(),matrix,64); //"glPop"
   
-  /*int i;
-  for (i = 0; i < 10; i++)
+  pPlanet planet = level.firstPlanet;
+  for (; planet != NULL; planet = planet->next)
   {
     Sint32 matrix[16];
     memcpy(matrix,spGetMatrix(),64);
-    spRotateZ(levelTime+i*SP_PI/5);
-    Sint32 c = abs(spCos(levelTime+i*SP_PI/5));
-    spTranslate((5<<SP_ACCURACY-1)+c,0,0);
-    spRotateX(levelTime);
-    spRotateY(levelTime);
-    spRotateZ(levelTime);
-    spMesh3D(planet[i],0);
+    spTranslate(planet->x,planet->y,0);
+    spRotateX(planet->rx);
+    spRotateY(planet->ry);
+    spRotateZ(planet->rz);
+    spMesh3D(planet->mesh,0);
     memcpy(spGetMatrix(),matrix,64);
-  }*/
+  }
 }
 
 void calcLevel(Sint32 steps)
 {
   levelTime+=steps;
+  
+  pPlanet planet = level.firstPlanet;
+  while (planet)
+  {
+    planet->rx += planet->dx*steps;
+    planet->ry += planet->dy*steps;
+    planet->rz += planet->dz*steps;
+    planet = planet-> next;
+  }
   
   //ship control
   if (!momPlayer)
@@ -172,12 +246,10 @@ void calcLevel(Sint32 steps)
 
 void quitLevel()
 {
+  deleteLevel();
   int i;
   for (i = 0; i < 10;i++)
-  {
-    spMeshDelete(planet[i]);
     SDL_FreeSurface(planet_texture[i]);
-  }
   spMeshDelete(ship[0]);
   spMeshDelete(ship[1]);
 }

@@ -21,19 +21,24 @@
 #define _PLANET_H
 
 #include <SDL.h>
+#include "../sparrow3d/sparrow3d.h"
 
 #define PLANET_NORMAL 0
 #define PLANET_GAS 1
-#define PLANET_STAR 2
+//#define PLANET_STAR 2
 
 typedef struct sPlanet *pPlanet;
 typedef struct sPlanet {
   Sint32 x,y;
   Sint32 radius;
   Sint32 mass; //mass and radius determine the gravity
-  Sint32 kind; //PLANET_NORMAL, PLANET_GAS or PLANET_STAR
+  Sint32 kind; //PLANET_NORMAL, PLANET_GAS (or PLANET_STAR)
   Sint32 satellite; //is 1, if the planet orbits a point in space (e.g. another planet)
+  spModelPointer mesh;
+  Sint32 rx,ry,rz;
+  Sint32 dx,dy,dz;
   //TODO orbiting of planets :P
+  
   pPlanet next;
 } tPlanet;
 
