@@ -79,9 +79,9 @@ void createRandomLevel()
       pPlanet other = level.firstPlanet;
       while (other)
       {
-        if ((planet->x-other->x >> 4)*(planet->x-other->x >> 4) +
-            (planet->y-other->y >> 4)*(planet->y-other->y >> 4) <
-            (planet->radius+other->radius >> 3)*(planet->radius+other->radius >> 3))
+        if ((planet->x-other->x >> (SP_ACCURACY-12))*(planet->x-other->x >> (SP_ACCURACY-12)) +
+            (planet->y-other->y >> (SP_ACCURACY-12))*(planet->y-other->y >> (SP_ACCURACY-12)) <
+            (planet->radius+other->radius >> (SP_ACCURACY-13))*(planet->radius+other->radius >> (SP_ACCURACY-13)))
         too_near = 1;
         other = other->next;
       }
@@ -101,9 +101,9 @@ void createRandomLevel()
     planet->rx = 0;
     planet->ry = 0;
     planet->rz = 0;
-    planet->dx = rand()%33-16;
-    planet->dy = rand()%33-16;
-    planet->dz = rand()%33-16;
+    planet->dx = rand()%33-16<<(SP_ACCURACY-16);
+    planet->dy = rand()%33-16<<(SP_ACCURACY-16);
+    planet->dz = rand()%33-16<<(SP_ACCURACY-16);
     planet->satellite = 0;
     planet->next = level.firstPlanet;
     level.firstPlanet = planet;
