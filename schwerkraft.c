@@ -10,9 +10,6 @@ void draw_function(void)
   spClearTarget(3);
   spIdentity();
 
-  spSetZSet(1);
-  spSetZTest(1);
-  
   drawLevel();
 
   spSetZSet(0);

@@ -30,6 +30,7 @@ typedef struct sLevel {
   Sint32 width;
   pPlanet firstPlanet;
   tShip ship[2]; //0 left, 1 right
+  struct {Sint32 x,y;} bullet;
 } tLevel;
 
 void initLevel();
