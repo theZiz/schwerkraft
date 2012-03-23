@@ -15,13 +15,6 @@ void draw_function(void)
   spSetZSet(0);
   spSetZTest(0);
   
-  char buffer[256];
-  sprintf(buffer,"fps: %i",spGetFPS());
-  spFontDrawRight(screen->w-2,screen->h-getFont(0)->maxheight,-1,buffer,getFont(0));  
-  spFontDrawRight(screen->w-2,2,-1,buffer,getFont(1));
-  spFontDraw(2,screen->h-getFont(2)->maxheight,-1,buffer,getFont(2));  
-  spFontDraw(2,2,-1,buffer,getFont(3));  
-
   spFlip();
 }
 

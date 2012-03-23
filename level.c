@@ -20,7 +20,10 @@
 
 #include "level.h"
 #include <fcntl.h>
+#include <SDL.h>
 #include "font.h"
+
+#define STAR_COUNT 200
 
 SDL_Surface* planet_texture[10];
 spModelPointer ship[2];
@@ -29,7 +32,9 @@ Sint32 levelTime = 0;
 tLevel level;
 Sint32 momPlayer = 0;
 Sint32 game_mode = 0; //0 targeting, 1 shooting
-Sint32 countdown = 15000; //15 seconds for targeting and 20 seconds of flying throw space
+Sint32 countdown = 20000; //20 seconds for targeting and 20 seconds of flying throw space
+SDL_Surface* starSurface[5];
+struct {Sint32 x,y,kind;} star[STAR_COUNT];
 
 void initLevel()
 {
@@ -47,12 +52,19 @@ void initLevel()
     printf("Loading %s\n",buffer);
     planet_texture[i] = spLoadSurface(buffer);
   }
+  for (i = 0; i < 5;i++)
+  {
+    char buffer[256];
+    sprintf(buffer,"./data/star%i.png",i+1);
+    printf("Loading %s\n",buffer);
+    starSurface[i] = IMG_Load(buffer);
+  }
   ship[0] = spMeshLoadObjSize("./data/ship.obj",NULL,12345,1<<SP_ACCURACY-3);
   ship[1] = spMeshLoadObjSize("./data/ship.obj",NULL,23456,1<<SP_ACCURACY-3);
   //Mirroring ship[1]
   for (i = 0; i < ship[1]->pointCount; i++)
     ship[1]->point[i].x = -ship[1]->point[i].x;
-  gun = spMeshLoadObjSize("./data/gun.obj",NULL,65535,1<<SP_ACCURACY-3);
+  gun = spMeshLoadObjSize("./data/gun.obj",NULL,65535,1<<SP_ACCURACY-4);
 }
 
 #define MIN_PLANETS 1
@@ -121,8 +133,30 @@ void createRandomLevel()
   level.ship[1].direction = 3*SP_PI/2;
   level.ship[0].energy = 1<<SP_ACCURACY-1; //1/2
   level.ship[1].energy = 1<<SP_ACCURACY-1; //1/2
+
+  for (i = 0; i < STAR_COUNT; i++)
+  {
+    star[i].x = rand()%(level.width*5)-level.width/2*5;
+    star[i].y = rand()%(5<<SP_ACCURACY)-(5<<SP_ACCURACY-1);
+    switch (rand()%10)
+    {
+      case 0:case 1:case 2:case 3:
+        star[i].kind = 4;
+        break;
+      case 4:case 5:case 6:
+        star[i].kind = 3;
+        break;
+      case 7:case 8:
+        star[i].kind = 2;
+        break;
+      case 9:
+        star[i].kind = 1;
+        break;
+    }
+  }
+
   momPlayer = 0;
-  countdown = 15000;
+  countdown = 20000;
   game_mode = 0;
 }
 
@@ -142,22 +176,31 @@ void deleteLevel()
 void drawLevel()
 {
   SDL_Surface *screen = spGetWindowSurface();
-  spSetZSet(1);
-  spSetZTest(1);
+
+  spSetZSet(0);
+  spSetZTest(0);
   
   Sint32 matrix[16];
-  //TODO: More accurate zoom
-  spTranslate(0,0,(-6<<SP_ACCURACY-2)-level.width);
+  Sint32 *project = spGetProjectionMatrix();
+  spTranslate(0,0,spMin(spDiv(spMul(project[0],level.width+(6<<SP_ACCURACY-4)),project[11]),
+                        spDiv(spMul(project[5],(1<<SP_ACCURACY)),project[11]))-(spSin(levelTime*64)+(1<<SP_ACCURACY)<<1));
+
+  int i;
+  for (i = 0; i < 100;i++)
+    spBlit3D(star[i].x,star[i].y,-1,starSurface[star[i].kind]);
+
+  spSetZSet(1);
+  spSetZTest(1);
 
   //Game Rectangle
-  //spRectangleBorder3D(0,0,0,level.width*2,2<<SP_ACCURACY,1<<SP_ACCURACY-5,1<<SP_ACCURACY-5,spGetHSV(0,0,64));
+  spRectangleBorder3D(0,0,0,level.width*4,4<<SP_ACCURACY,1<<SP_ACCURACY-5,1<<SP_ACCURACY-5,spGetHSV(0,0,64));
 
   char buffer[256];
 
   //Drawing the left ship, direction and energy
   //TODO: 20% cooler
   memcpy(matrix,spGetMatrix(),64); //"glPush"
-  spTranslate(-level.width,level.ship[0].y,0);
+  spTranslate(-level.width-(1<<SP_ACCURACY-2),level.ship[0].y,0);
   spRotateY(SP_PI/2);
   spRotateX(level.ship[0].direction-SP_PI/2);
   spMesh3D(gun,0);
@@ -166,10 +209,10 @@ void drawLevel()
     spSetZSet(0);
     spSetZTest(0);
     spRotateY(-SP_PI/2);
-    spQuad3D((1<<SP_ACCURACY-3)+0,+1<<SP_ACCURACY-5,0,
-             (1<<SP_ACCURACY-3)+0,-1<<SP_ACCURACY-5,0,
-             (1<<SP_ACCURACY-3)+level.ship[0].energy/8,-1<<SP_ACCURACY-5,0,
-             (1<<SP_ACCURACY-3)+level.ship[0].energy/8,+1<<SP_ACCURACY-5,0,0b1111100000000000);
+    spQuad3D((1<<SP_ACCURACY-4)+0,+1<<SP_ACCURACY-6,0,
+             (1<<SP_ACCURACY-4)+0,-1<<SP_ACCURACY-6,0,
+             (1<<SP_ACCURACY-4)+level.ship[0].energy/16,-1<<SP_ACCURACY-6,0,
+             (1<<SP_ACCURACY-4)+level.ship[0].energy/16,+1<<SP_ACCURACY-6,0,0b1111100000000000);
     spSetZSet(1);
     spSetZTest(1);
   }
@@ -179,7 +222,7 @@ void drawLevel()
   //Drawing the right ship, direction and energy
   //TODO: 20% cooler
   memcpy(matrix,spGetMatrix(),64); //"glPush"
-  spTranslate(+level.width,level.ship[1].y,0);
+  spTranslate(+level.width+(1<<SP_ACCURACY-2),level.ship[1].y,0);
   spRotateY(SP_PI/2);
   spRotateX(level.ship[1].direction-SP_PI/2);
   spMesh3D(gun,0);
@@ -188,10 +231,10 @@ void drawLevel()
     spSetZSet(0);
     spSetZTest(0);
     spRotateY(-SP_PI/2);
-    spQuad3D((1<<SP_ACCURACY-3)+0,+1<<SP_ACCURACY-5,0,
-             (1<<SP_ACCURACY-3)+0,-1<<SP_ACCURACY-5,0,
-             (1<<SP_ACCURACY-3)+level.ship[1].energy/8,-1<<SP_ACCURACY-5,0,
-             (1<<SP_ACCURACY-3)+level.ship[1].energy/8,+1<<SP_ACCURACY-5,0,0b1111100000000000);
+    spQuad3D((1<<SP_ACCURACY-4)+0,+1<<SP_ACCURACY-6,0,
+             (1<<SP_ACCURACY-4)+0,-1<<SP_ACCURACY-6,0,
+             (1<<SP_ACCURACY-4)+level.ship[1].energy/16,-1<<SP_ACCURACY-6,0,
+             (1<<SP_ACCURACY-4)+level.ship[1].energy/16,+1<<SP_ACCURACY-6,0,0b1111100000000000);
     spSetZSet(1);
     spSetZTest(1);
   }
@@ -284,7 +327,7 @@ void calcLevel(Sint32 steps)
     if (countdown <= 0)
     {
       momPlayer = 1-momPlayer;
-      countdown = 15000;
+      countdown = 20000;
     }
   }
   else
@@ -294,7 +337,7 @@ void calcLevel(Sint32 steps)
     {
       momPlayer = 1-momPlayer;
       game_mode = 0;
-      countdown = 15000;
+      countdown = 20000;
     }
   }
 }
@@ -305,6 +348,8 @@ void quitLevel()
   int i;
   for (i = 0; i < 10;i++)
     SDL_FreeSurface(planet_texture[i]);
+  for (i = 0; i < 5;i++)
+    SDL_FreeSurface(starSurface[i]);
   spMeshDelete(ship[0]);
   spMeshDelete(ship[1]);
   spMeshDelete(gun);

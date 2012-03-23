@@ -13,13 +13,12 @@ Roadmap:
   - showing the old trys in different colors
     - shaping the position of the rotating objects
 - ships as goal
+- Intro
 - Menu
 - Tutorial
   - every different planet step by step
 - different bullet types?
-- particles
 - KI (very important :-\)
-- planets can have damage? (getting smaller?)
 - highscore
   - more power => fewer points
   - more time used => fewer points
