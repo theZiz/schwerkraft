@@ -1,17 +1,9 @@
 Roadmap:
-+ new planets (10?)
-+ cool font
-+ different planet types
-  + "normal" planets
-  + gas planets (gravity, but no collision)
-  - rotating planets (e.g. around another one => moons)
-+ random level creation
-+ show level
 - game itself
   - gravity (depends on the radius and mass, bigger gas planets are still lighter)
-  - bullet has speed and direction
-  - showing the old trys in different colors
-    - shaping the position of the rotating objects
+  + bullet has speed and direction
+- new transparent
+- showing distance
 - ships as goal
 - Intro
 - Menu

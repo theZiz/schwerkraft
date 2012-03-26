@@ -21,13 +21,17 @@
 #include "level.h"
 #include <fcntl.h>
 #include <SDL.h>
+#include <SDL_image.h>
 #include "font.h"
+#include "trace.h"
 
 #define STAR_COUNT 200
+#define BULLET_ACCURACY 11
 
 SDL_Surface* planet_texture[10];
 spModelPointer ship[2];
 spModelPointer gun;
+spModelPointer bullet;
 Sint32 levelTime = 0;
 tLevel level;
 Sint32 momPlayer = 0;
@@ -65,6 +69,7 @@ void initLevel()
   for (i = 0; i < ship[1]->pointCount; i++)
     ship[1]->point[i].x = -ship[1]->point[i].x;
   gun = spMeshLoadObjSize("./data/gun.obj",NULL,65535,1<<SP_ACCURACY-4);
+  bullet = spMeshLoadObj("./data/bullet.obj",NULL,65535);
 }
 
 #define MIN_PLANETS 1
@@ -73,6 +78,7 @@ void initLevel()
 void createRandomLevel()
 {
   deleteLevel();
+  deleteAllTracePoints();
   level.width = rand()%(1<<SP_ACCURACY)+(1<<SP_ACCURACY); //width between 1 and 2
   level.firstPlanet = NULL;
   //Creating random planets
@@ -131,13 +137,13 @@ void createRandomLevel()
   level.ship[1].y = rand()%((1<<SP_ACCURACY+1)+1-(1<<SP_ACCURACY-1))-(1<<SP_ACCURACY)+(1<<SP_ACCURACY-2); //position between -1 and 1
   level.ship[0].direction =   SP_PI/2;
   level.ship[1].direction = 3*SP_PI/2;
-  level.ship[0].energy = 1<<SP_ACCURACY-1; //1/2
-  level.ship[1].energy = 1<<SP_ACCURACY-1; //1/2
+  level.ship[0].energy = 1<<SP_ACCURACY;
+  level.ship[1].energy = 1<<SP_ACCURACY;
 
   for (i = 0; i < STAR_COUNT; i++)
   {
-    star[i].x = rand()%(level.width*5)-level.width/2*5;
-    star[i].y = rand()%(5<<SP_ACCURACY)-(5<<SP_ACCURACY-1);
+    star[i].x = rand()%(level.width*6)-level.width*3;
+    star[i].y = rand()%(6<<SP_ACCURACY)-(3<<SP_ACCURACY);
     switch (rand()%10)
     {
       case 0:case 1:case 2:case 3:
@@ -154,6 +160,10 @@ void createRandomLevel()
         break;
     }
   }
+  level.bullet.x = 0;
+  level.bullet.y = 0;
+  level.bullet.dx = 0;
+  level.bullet.dy = 0;
 
   momPlayer = 0;
   countdown = 20000;
@@ -180,14 +190,29 @@ void drawLevel()
   spSetZSet(0);
   spSetZTest(0);
   
+  
   Sint32 matrix[16];
   Sint32 *project = spGetProjectionMatrix();
-  spTranslate(0,0,spMin(spDiv(spMul(project[0],level.width+(6<<SP_ACCURACY-4)),project[11]),
-                        spDiv(spMul(project[5],(1<<SP_ACCURACY)),project[11]))-(spSin(levelTime*64)+(1<<SP_ACCURACY)<<1));
+  
+  Sint32 z_width = spDiv(spMul(project[0],level.width+(6<<SP_ACCURACY-4)),project[11]);
+  Sint32 z_height = spDiv(spMul(project[5],(1<<SP_ACCURACY)),project[11]);
+  Sint32 z_min = spMin(z_width,z_height);
+  if (game_mode == 1)
+  {
+    Sint32 z_bulletx = spDiv(spMul(project[0],abs(level.bullet.x>>BULLET_ACCURACY)),project[11])-(1<<SP_ACCURACY-2);
+    z_min = spMin(z_min,z_bulletx);
+    Sint32 z_bullety = spDiv(spMul(project[5],abs(level.bullet.y>>BULLET_ACCURACY)),project[11])-(1<<SP_ACCURACY-2);
+    z_min = spMin(z_min,z_bullety);
+  }
+  
+  
+  spTranslate(0,0,z_min);
 
   int i;
   for (i = 0; i < 100;i++)
     spBlit3D(star[i].x,star[i].y,-1,starSurface[star[i].kind]);
+
+  drawTracePoints();
 
   spSetZSet(1);
   spSetZTest(1);
@@ -212,7 +237,7 @@ void drawLevel()
     spQuad3D((1<<SP_ACCURACY-4)+0,+1<<SP_ACCURACY-6,0,
              (1<<SP_ACCURACY-4)+0,-1<<SP_ACCURACY-6,0,
              (1<<SP_ACCURACY-4)+level.ship[0].energy/16,-1<<SP_ACCURACY-6,0,
-             (1<<SP_ACCURACY-4)+level.ship[0].energy/16,+1<<SP_ACCURACY-6,0,0b1111100000000000);
+             (1<<SP_ACCURACY-4)+level.ship[0].energy/16,+1<<SP_ACCURACY-6,0,63488);
     spSetZSet(1);
     spSetZTest(1);
   }
@@ -234,7 +259,7 @@ void drawLevel()
     spQuad3D((1<<SP_ACCURACY-4)+0,+1<<SP_ACCURACY-6,0,
              (1<<SP_ACCURACY-4)+0,-1<<SP_ACCURACY-6,0,
              (1<<SP_ACCURACY-4)+level.ship[1].energy/16,-1<<SP_ACCURACY-6,0,
-             (1<<SP_ACCURACY-4)+level.ship[1].energy/16,+1<<SP_ACCURACY-6,0,0b1111100000000000);
+             (1<<SP_ACCURACY-4)+level.ship[1].energy/16,+1<<SP_ACCURACY-6,0,63488);
     spSetZSet(1);
     spSetZTest(1);
   }
@@ -252,6 +277,11 @@ void drawLevel()
     spRotateZ(planet->rz);
     spMesh3D(planet->mesh,0);
     memcpy(spGetMatrix(),matrix,64);
+  }
+  
+  if (game_mode == 1)
+  {
+    spEllipse3D(level.bullet.x>>BULLET_ACCURACY,level.bullet.y>>BULLET_ACCURACY,0,1<<SP_ACCURACY-5,1<<SP_ACCURACY-5,63488);
   }
   
   spSetZSet(0);
@@ -309,8 +339,8 @@ void calcLevel(Sint32 steps)
     if ((!momPlayer && spGetInput()->axis[0]<0) || (momPlayer && spGetInput()->axis[0]>0))
     {
       level.ship[momPlayer].energy-=steps<<SP_ACCURACY-10;
-      if (level.ship[momPlayer].energy < (1<<SP_ACCURACY-3))
-        level.ship[momPlayer].energy = 1<<SP_ACCURACY-3;
+      if (level.ship[momPlayer].energy < (1<<SP_ACCURACY-1))
+        level.ship[momPlayer].energy = 1<<SP_ACCURACY-1;
     }
     if ((!momPlayer && spGetInput()->axis[0]>0) || (momPlayer && spGetInput()->axis[0]<0))
     {
@@ -323,6 +353,18 @@ void calcLevel(Sint32 steps)
       spGetInput()->button[SP_BUTTON_A] = 0;
       game_mode = 1;
       countdown = 20000;
+      if (momPlayer == 0)
+        level.bullet.x  = -level.width-(1<<SP_ACCURACY-2);
+      else
+        level.bullet.x  =  level.width+(1<<SP_ACCURACY-2);
+      level.bullet.y  = level.ship[momPlayer].y;
+      level.bullet.x += spMul(spSin(level.ship[momPlayer].direction),(3<<SP_ACCURACY-4));
+      level.bullet.y += spMul(spCos(level.ship[momPlayer].direction),(3<<SP_ACCURACY-4));
+      level.bullet.x  = level.bullet.x << BULLET_ACCURACY;
+      level.bullet.y  = level.bullet.y << BULLET_ACCURACY;
+      level.bullet.dx = spMul(spSin(level.ship[momPlayer].direction),level.ship[momPlayer].energy);
+      level.bullet.dy = spMul(spCos(level.ship[momPlayer].direction),level.ship[momPlayer].energy);
+      nextTrace();
     }
     if (countdown <= 0)
     {
@@ -332,8 +374,21 @@ void calcLevel(Sint32 steps)
   }
   else
   {
+    int i;
+    for (i = 0; i < steps; i++)
+    {
+      level.bullet.x += level.bullet.dx;
+      level.bullet.y += level.bullet.dy;
+      addTracePoint(level.bullet.x>>BULLET_ACCURACY,level.bullet.y>>BULLET_ACCURACY);
+    }
     int hit = 0;
-    if (countdown <= 0 || hit)
+    int out = 0;
+    if ((level.bullet.x >> BULLET_ACCURACY) < -level.width *2 ||
+        (level.bullet.x >> BULLET_ACCURACY) >  level.width *2  ||
+        (level.bullet.y >> BULLET_ACCURACY) < -(2<<SP_ACCURACY) ||
+        (level.bullet.y >> BULLET_ACCURACY) >  (2<<SP_ACCURACY))
+      out = 1;
+    if (countdown <= 0 || hit || out)
     {
       momPlayer = 1-momPlayer;
       game_mode = 0;
@@ -353,4 +408,5 @@ void quitLevel()
   spMeshDelete(ship[0]);
   spMeshDelete(ship[1]);
   spMeshDelete(gun);
+  spMeshDelete(bullet);
 }
