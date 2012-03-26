@@ -1,16 +1,9 @@
 Roadmap:
-- game itself
-  - gravity (depends on the radius and mass, bigger gas planets are still lighter)
-  + bullet has speed and direction
-- new transparent
-- showing distance
 - ships as goal
-- Intro
 - Menu
+- Music
+- Sound
+- KI (very important :-\)
 - Tutorial
   - every different planet step by step
-- different bullet types?
-- KI (very important :-\)
-- highscore
-  - more power => fewer points
-  - more time used => fewer points
+- Intro / About

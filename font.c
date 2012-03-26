@@ -20,7 +20,7 @@
 
 #include "font.h"
 
-spFontPointer font[4] = {NULL,NULL,NULL,NULL}; //0 (biggest) to 3 (small)
+spFontPointer font[6] = {NULL,NULL,NULL,NULL,NULL,NULL}; //0 (biggest) to 3 (small), 4 green fat, 5 blue fat
 
 void reloadFont()
 {
@@ -30,24 +30,42 @@ void reloadFont()
   font[0] = spFontLoad(FONT_LOCATION,FONT_SIZE_0*spGetSizeFactor()>>SP_ACCURACY);
   spFontAddRange(font[0],' ','~',0);//whole ASCII
   spFontAddBorder(font[0],65535);
+  spFontReplaceColor(font[0],0,SP_ALPHA_COLOR);
 
   if (font[1])
     spFontDelete(font[1]);
   font[1] = spFontLoad(FONT_LOCATION,FONT_SIZE_1*spGetSizeFactor()>>SP_ACCURACY);
   spFontAddRange(font[1],' ','~',0);//whole ASCII
   spFontAddBorder(font[1],65535);
+  spFontReplaceColor(font[1],0,SP_ALPHA_COLOR);
 
   if (font[2])
     spFontDelete(font[2]);
   font[2] = spFontLoad(FONT_LOCATION,FONT_SIZE_2*spGetSizeFactor()>>SP_ACCURACY);
   spFontAddRange(font[2],' ','~',14823);//whole ASCII
   spFontAddBorder(font[2],48631);
+  spFontReplaceColor(font[2],0,SP_ALPHA_COLOR);
 
   if (font[3])
     spFontDelete(font[3]);
   font[3] = spFontLoad(FONT_LOCATION,FONT_SIZE_3*spGetSizeFactor()>>SP_ACCURACY);
   spFontAddRange(font[3],' ','~',14823);//whole ASCII
   spFontAddBorder(font[3],48631);
+  spFontReplaceColor(font[3],0,SP_ALPHA_COLOR);
+
+  if (font[4])
+    spFontDelete(font[4]);
+  font[4] = spFontLoad(FONT_LOCATION,FONT_SIZE_4*spGetSizeFactor()>>SP_ACCURACY);
+  spFontAddRange(font[4],' ','~',0);//whole ASCII
+  spFontAddBorder(font[4],2016);
+  spFontReplaceColor(font[4],0,SP_ALPHA_COLOR);
+
+  if (font[5])
+    spFontDelete(font[5]);
+  font[5] = spFontLoad(FONT_LOCATION,FONT_SIZE_5*spGetSizeFactor()>>SP_ACCURACY);
+  spFontAddRange(font[5],' ','~',0);//whole ASCII
+  spFontAddBorder(font[5],31743);
+  spFontReplaceColor(font[5],0,SP_ALPHA_COLOR);
 }
 
 spFontPointer getFont(int number)
@@ -58,6 +76,6 @@ spFontPointer getFont(int number)
 void quitFont()
 {
   int i;
-  for (i=0;i<4;i++)
+  for (i=0;i<6;i++)
     spFontDelete(font[i]);
 }

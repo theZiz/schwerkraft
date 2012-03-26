@@ -27,6 +27,8 @@
 #define FONT_SIZE_1 12
 #define FONT_SIZE_2 12
 #define FONT_SIZE_3 10
+#define FONT_SIZE_4 16
+#define FONT_SIZE_5 16
 
 void reloadFont();
 spFontPointer getFont(int number);
