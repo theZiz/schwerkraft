@@ -23,7 +23,10 @@
 #include <SDL.h>
 #include "../sparrow3d/sparrow3d.h"
 
-#define TRACE_LINE_LENGTH (1<<SP_ACCURACY-8)
+#define TRACE_LINE_LENGTH (1<<SP_ACCURACY-6)
+#define TRACE_LINE_SIMPLE 8
+
+
 
 typedef struct sTracePoint *pTracePoint;
 typedef struct sTracePoint {

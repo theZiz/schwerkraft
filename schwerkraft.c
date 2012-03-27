@@ -47,6 +47,7 @@ int main(int argc, char **argv)
   spSetAlphaTest(1);
   spSetLight(1);
   
+  init_menu_stuff();
   initLevel();
   int result = 1;
   while (result)
@@ -71,7 +72,7 @@ int main(int argc, char **argv)
     }
   }
   quitLevel();
-  
+  quit_menu_stuff();
   quitFont();
   
   spQuitCore();

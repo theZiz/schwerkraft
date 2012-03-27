@@ -24,6 +24,16 @@
 int menu_choice = 1;
 int wait_for_release = 0;
 
+SDL_Surface* banner;
+SDL_Surface* logo;
+
+void init_menu_stuff()
+{
+  banner = spLoadSurface("./data/rebirth-banner-entered-800.png"); 
+  logo = spLoadSurface("./data/sparrow.png"); 
+}
+
+
 void draw_menu()
 {
   SDL_Surface *screen = spGetWindowSurface();
@@ -88,6 +98,18 @@ void draw_about()
   spFontDraw(screen->w/2-spFontWidth("AbOut",getFont(4))/2,1*screen->h/8,-1,"Ab",getFont(4));  
   spFontDraw(screen->w/2-spFontWidth("AbOut",getFont(4))/2+spFontWidth("Ab",getFont(4)),1*screen->h/8,-1,"Out",getFont(5));  
 
+  spRotozoomSurface(screen->w/6,2*screen->h/5,-1,logo,spGetSizeFactor()*2/5,spGetSizeFactor()*2/5,SDL_GetTicks()*32);
+  
+  spFontDraw(5*screen->w/16,4*screen->h/20,-1,"Made for the",getFont(3));
+  spFontDraw(5*screen->w/16,5*screen->h/20,-1,"  Pandora Rebirth Competition",getFont(3));
+  spFontDraw(5*screen->w/16,7*screen->h/20,-1,"Made by Ziz with sparrow3D",getFont(3));
+  spFontDraw(5*screen->w/16,8*screen->h/20,-1,"  Licenced under MPL / LGPL",getFont(3));
+  spFontDraw(5*screen->w/16,10*screen->h/20,-1,"Music made by Kevin MaCLeod",getFont(3));
+  spFontDraw(5*screen->w/16,11*screen->h/20,-1,"  Licenced under CC3.0",getFont(3));
+  spFontDraw(5*screen->w/16,12*screen->h/20,-1,"  www.incompetech.com",getFont(3));
+  
+  spRotozoomSurface(screen->w/2,4*screen->h/5,-1,banner,spGetSizeFactor()*2/5,spGetSizeFactor()*2/5,0);
+  
   spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press (A) or (Start) to return",getFont(3));
   
   spFlip();
@@ -106,4 +128,10 @@ int calc_about(Sint32 steps)
     return 1;
   }
   return 0;
+}
+
+void quit_menu_stuff()
+{
+  SDL_FreeSurface(logo); 
+  SDL_FreeSurface(banner); 
 }

@@ -48,6 +48,20 @@ void deleteTrace(int traceNr)
 
 void nextTrace()
 {
+  pTracePoint point = trace[traceNr];
+  while (point)
+  {
+    int i = 0;
+    if (point->next)
+    while (point->next->next && i<TRACE_LINE_SIMPLE)
+    {
+      pTracePoint del = point->next;
+      point->next = point->next->next;
+      free(del);
+      i++;
+    }
+    point = point->next;
+  }
   traceNr = (traceNr + 1) & 15;
   deleteTrace(traceNr);
   Sint32 h = rand() % (2*SP_PI);

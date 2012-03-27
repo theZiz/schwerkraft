@@ -23,6 +23,8 @@
 #include <SDL.h>
 #include "../sparrow3d/sparrow3d.h"
 
+void init_menu_stuff();
+
 void draw_menu();
 
 int calc_menu(Sint32 steps);
