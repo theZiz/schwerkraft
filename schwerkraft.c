@@ -62,6 +62,9 @@ int main(int argc, char **argv)
         createRandomLevel(1);
         result = spLoop(draw_game,calc_game,10,resize);
         break;
+      case 4:
+        spLoop(draw_about,calc_about,10,resize);
+        break;
       case 5:
         result = 0;
         break;

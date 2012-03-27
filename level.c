@@ -44,6 +44,8 @@ SDL_Surface* starSurface[5];
 struct {Sint32 x,y,kind;} star[STAR_COUNT];
 int ki;
 Sint32 ki_from,ki_to;
+Sint32 ki_old_from,ki_old_to;
+
 
 void initLevel()
 {
@@ -125,7 +127,7 @@ void createRandomLevel(int player_2_is_ki)
       continue;
     }
     planet->mass = spMul(planet->radius*planet->radius,planet->radius)>>8;
-    planet->kind = rand()%2;
+    planet->kind = (rand()%3) & 1;
     if (planet->kind == PLANET_NORMAL)
       planet->mesh = spMeshLoadObjSize("./data/planet.obj",planet_texture[rand()%6],65535,planet->radius);
     else
@@ -185,6 +187,8 @@ void createRandomLevel(int player_2_is_ki)
   game_mode = 0;
   ki_from = SP_PI+(1<<SP_ACCURACY-10);
   ki_to = 2*SP_PI-(1<<SP_ACCURACY-10);
+  ki_old_from = 0;
+  ki_old_to = 0;
 }
 
 #define KI_STEP 1
@@ -266,6 +270,10 @@ Sint32 ki_getDistanceFromPlayer1(Sint32 direction)
 
 void ki_search_best()
 {
+  if (ki_to == ki_old_to && ki_from == ki_old_from)
+    level.ship[1].energy = rand()%(2<<SP_ACCURACY);
+  ki_old_from = ki_from;
+  ki_old_to = ki_to;
   Sint32 ki_step = (ki_to-ki_from)/(KI_TRIES+1);
   Sint32 best = ki_from;
   Sint32 best_value = ki_getDistanceFromPlayer1(best);
@@ -425,12 +433,16 @@ void drawLevel()
   int w = spFontWidth(buffer,getFont(1));
   sprintf(buffer,"-%.2f",(float)level.ship[0].energy/SP_ACCURACY_FACTOR);
   spFontDrawRight(2+w,2+getFont(1)->maxheight,-1,buffer,getFont(2));
+  sprintf(buffer,"%.2f deg",(float)level.ship[0].direction*180.0/3.14159265f/SP_ACCURACY_FACTOR);
+  spFontDraw(2,2+2*getFont(1)->maxheight,-1,buffer,getFont(3));
   
   sprintf(buffer,"E: %.2f",(float)level.ship[1].allEnergy/SP_ACCURACY_FACTOR);
   spFontDrawRight(screen->w-2,2,-1,buffer,getFont(1));  
   w = spFontWidth(buffer,getFont(1));
   sprintf(buffer,"-%.2f",(float)level.ship[1].energy/SP_ACCURACY_FACTOR);
   spFontDrawRight(screen->w-2,2+getFont(1)->maxheight,-1,buffer,getFont(2));
+  sprintf(buffer,"%.2f deg",360.0f-(float)level.ship[1].direction*180.0/3.14159265f/SP_ACCURACY_FACTOR);
+  spFontDrawRight(screen->w-2,2+2*getFont(1)->maxheight,-1,buffer,getFont(3));
 
   if (game_mode < 2)
   {
@@ -494,13 +506,13 @@ int calcLevel(Sint32 steps)
         if (spGetInput()->axis[1]<0)
         {
           level.ship[momPlayer].direction+=steps<<SP_ACCURACY-10-slow_shift;
-          if (level.ship[momPlayer].direction >= SP_PI)
+          if (level.ship[momPlayer].direction >= SP_PI-(1<<SP_ACCURACY-10))
             level.ship[momPlayer].direction = SP_PI-(1<<SP_ACCURACY-10);
         }
         if (spGetInput()->axis[1]>0)
         {
           level.ship[momPlayer].direction-=steps<<SP_ACCURACY-10-slow_shift;
-          if (level.ship[momPlayer].direction <= 0)
+          if (level.ship[momPlayer].direction <= (1<<SP_ACCURACY-10))
             level.ship[momPlayer].direction = (1<<SP_ACCURACY-10);
         }
       }
@@ -509,13 +521,13 @@ int calcLevel(Sint32 steps)
         if (spGetInput()->axis[1]>0)
         {
           level.ship[momPlayer].direction+=steps<<SP_ACCURACY-10-slow_shift;
-          if (level.ship[momPlayer].direction >= 2*SP_PI)
+          if (level.ship[momPlayer].direction >= 2*SP_PI-(1<<SP_ACCURACY-10))
             level.ship[momPlayer].direction = 2*SP_PI-(1<<SP_ACCURACY-10);
         }
         if (spGetInput()->axis[1]<0)
         {
           level.ship[momPlayer].direction-=steps<<SP_ACCURACY-10-slow_shift;
-          if (level.ship[momPlayer].direction <= SP_PI)
+          if (level.ship[momPlayer].direction <= SP_PI+(1<<SP_ACCURACY-10))
             level.ship[momPlayer].direction = SP_PI+(1<<SP_ACCURACY-10);
         }
       }

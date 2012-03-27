@@ -27,4 +27,8 @@ void draw_menu();
 
 int calc_menu(Sint32 steps);
 
+void draw_about();
+
+int calc_about(Sint32 steps);
+
 #endif

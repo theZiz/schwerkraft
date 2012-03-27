@@ -75,3 +75,35 @@ int calc_menu(Sint32 steps)
   }
   return 0;
 }
+
+void draw_about()
+{
+  SDL_Surface *screen = spGetWindowSurface();
+
+  spResetZBuffer();
+  spClearTarget(3);
+  spIdentity();
+  spSetZSet(0);
+  spSetZTest(0);
+  spFontDraw(screen->w/2-spFontWidth("AbOut",getFont(4))/2,1*screen->h/8,-1,"Ab",getFont(4));  
+  spFontDraw(screen->w/2-spFontWidth("AbOut",getFont(4))/2+spFontWidth("Ab",getFont(4)),1*screen->h/8,-1,"Out",getFont(5));  
+
+  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press (A) or (Start) to return",getFont(3));
+  
+  spFlip();
+}
+
+int calc_about(Sint32 steps)
+{
+  if (spGetInput()->button[SP_BUTTON_A])
+  {
+    spGetInput()->button[SP_BUTTON_A] = 0;
+    return 1;
+  }
+  if (spGetInput()->button[SP_BUTTON_START])
+  {
+    spGetInput()->button[SP_BUTTON_START] = 0;
+    return 1;
+  }
+  return 0;
+}
