@@ -17,27 +17,14 @@
  For feedback and questions about my Files and Projects please mail me,     
  Alexander Matthes (Ziz) , zizsdl_at_googlemail.com                         
 */
-#ifndef _LEVEL_H
-#define _LEVEL_H
+#ifndef _MENU_H
+#define _MENU_H
 
 #include <SDL.h>
 #include "../sparrow3d/sparrow3d.h"
-#include "planet.h"
-#include "ship.h"
 
-typedef struct sLevel *pLevel;
-typedef struct sLevel {
-  Sint32 width;
-  pPlanet firstPlanet;
-  tShip ship[2]; //0 left, 1 right
-  struct {Sint32 x,y,dx,dy;} bullet;
-} tLevel;
+void draw_menu();
 
-void initLevel();
-void createRandomLevel(int player_2_is_ki);
-void deleteLevel();
-void drawLevel();
-int calcLevel(Sint32 steps);
-void quitLevel();
+int calc_menu(Sint32 steps);
 
 #endif

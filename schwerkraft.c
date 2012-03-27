@@ -1,10 +1,11 @@
 #include "../sparrow3d/sparrow3d.h"
 #include <SDL_image.h>
+#include "menu.h"
 #include "font.h"
 
 SDL_Surface* screen;
 
-void draw_function(void)
+void draw_game(void)
 {
   spResetZBuffer();
   spClearTarget(3);
@@ -18,12 +19,14 @@ void draw_function(void)
   spFlip();
 }
 
-int calc_function(Uint32 steps)
+int calc_game(Uint32 steps)
 {
   if (spGetInput()->button[SP_BUTTON_START])
+  {
+    spGetInput()->button[SP_BUTTON_START] = 0;
     return 1;
-  calcLevel(steps);
-  return 0; 
+  }
+  return calcLevel(steps);
 }
 
 void resize(Uint16 w,Uint16 h)
@@ -45,8 +48,25 @@ int main(int argc, char **argv)
   spSetLight(1);
   
   initLevel();
-  createRandomLevel();
-  spLoop(draw_function,calc_function,10,resize);
+  int result = 1;
+  while (result)
+  {
+    result = spLoop(draw_menu,calc_menu,10,resize);
+    switch (result)
+    {
+      case 1:
+        createRandomLevel(0);
+        result = spLoop(draw_game,calc_game,10,resize);
+        break;
+      case 2:
+        createRandomLevel(1);
+        result = spLoop(draw_game,calc_game,10,resize);
+        break;
+      case 5:
+        result = 0;
+        break;
+    }
+  }
   quitLevel();
   
   quitFont();

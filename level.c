@@ -37,10 +37,13 @@ spModelPointer bullet;
 Sint32 levelTime = 0;
 tLevel level;
 Sint32 momPlayer = 0;
-Sint32 game_mode = 0; //0 targeting, 1 shooting
+Sint32 game_mode = 0; //0 targeting, 1 shooting, 2 winner
+Sint32 winner;
 Sint32 countdown = MAX_COUNTDOWN_TARGETING; //20 seconds for targeting and 40 seconds of flying throw space
 SDL_Surface* starSurface[5];
 struct {Sint32 x,y,kind;} star[STAR_COUNT];
+int ki;
+Sint32 ki_from,ki_to;
 
 void initLevel()
 {
@@ -74,11 +77,16 @@ void initLevel()
   bullet = spMeshLoadObj("./data/bullet.obj",NULL,65535);
 }
 
-#define MIN_PLANETS 1
-#define MAX_PLANETS 5
+#define MIN_PLANETS 2
+#define MAX_PLANETS 8
 
-void createRandomLevel()
+void createRandomLevel(int player_2_is_ki)
 {
+  ki = player_2_is_ki;
+  if (ki)
+    printf("Start game vs computer\n");
+  else
+    printf("Start game vs human\n");
   deleteLevel();
   deleteAllTracePoints();
   level.width = rand()%(1<<SP_ACCURACY)+(1<<SP_ACCURACY); //width between 1 and 2
@@ -175,6 +183,121 @@ void createRandomLevel()
   momPlayer = 0;
   countdown = MAX_COUNTDOWN_TARGETING;
   game_mode = 0;
+  ki_from = SP_PI+(1<<SP_ACCURACY-10);
+  ki_to = 2*SP_PI-(1<<SP_ACCURACY-10);
+}
+
+#define KI_STEP 1
+
+Sint32 ki_getDistanceFromPlayer1(Sint32 direction)
+{
+  int hit = 0;
+  int out = 0;
+  int selfHit = 0;
+  int enemyHit = 0;
+  Sint32 bx  = level.width+(1<<SP_ACCURACY-2);
+  Sint32 by  = level.ship[momPlayer].y;
+  bx += spMul(spSin(direction),(3<<SP_ACCURACY-4));
+  by += spMul(spCos(direction),(3<<SP_ACCURACY-4));
+  bx  = bx << BULLET_ACCURACY;
+  by  = by << BULLET_ACCURACY;
+  Sint32 bdx = spMul(spSin(direction),level.ship[1].energy);
+  Sint32 bdy = spMul(spCos(direction),level.ship[1].energy);
+  Sint32 nearest = 1<<SP_ACCURACY+8;
+  int i;
+  for (i = 0; i < MAX_COUNTDOWN_FLYING/KI_STEP; i++)
+  {
+    if (hit || out || selfHit || enemyHit)
+      break;
+    Sint32 gx = 0;
+    Sint32 gy = 0;
+    
+    pPlanet planet = level.firstPlanet;
+    while (planet)
+    {
+      Sint32 vx = planet->x-(bx >> BULLET_ACCURACY);
+      Sint32 vy = planet->y-(by >> BULLET_ACCURACY);
+      Sint32 vlength = spSqrt(spMulHigh(vx,vx)+spMulHigh(vy,vy));
+      if (planet->kind == PLANET_NORMAL && vlength < (planet->radius+(1<<SP_ACCURACY-5)))
+        hit = 1;
+      Sint32 vlength_3 = spMulHigh(spMulHigh(vlength,vlength),vlength);
+      if (vlength_3!=0)
+      {
+        gx += spDivHigh(spMulHigh(planet->mass,vx),vlength_3);
+        gy += spDivHigh(spMulHigh(planet->mass,vy),vlength_3);
+      }
+      planet = planet->next;
+    }
+    
+    bdx += gx*KI_STEP>>15;
+    bdy += gy*KI_STEP>>15;
+    
+    //addTracePoint(bx>>BULLET_ACCURACY,by>>BULLET_ACCURACY);
+    bx += bdx*KI_STEP;
+    by += bdy*KI_STEP;
+    if ((bx >> BULLET_ACCURACY) < -level.width *5/2 ||
+        (bx >> BULLET_ACCURACY) >  level.width *5/2  ||
+        (by >> BULLET_ACCURACY) < -(5<<SP_ACCURACY-1) ||
+        (by >> BULLET_ACCURACY) >  (5<<SP_ACCURACY-1))
+      out = 1;
+    if (spMul((bx >> BULLET_ACCURACY)-(-level.width-(1<<SP_ACCURACY-2)),
+              (bx >> BULLET_ACCURACY)-(-level.width-(1<<SP_ACCURACY-2)))+
+        spMul((by >> BULLET_ACCURACY)-(level.ship[0].y),
+              (by >> BULLET_ACCURACY)-(level.ship[0].y)) <
+        spMul(4<<SP_ACCURACY-5,4<<SP_ACCURACY-5))
+      enemyHit = 1;
+    if (spMul((bx >> BULLET_ACCURACY)-(level.width+(1<<SP_ACCURACY-2)),
+              (bx >> BULLET_ACCURACY)-(level.width+(1<<SP_ACCURACY-2)))+
+        spMul((by >> BULLET_ACCURACY)-(level.ship[1].y),
+              (by >> BULLET_ACCURACY)-(level.ship[1].y)) <
+        spMul(4<<SP_ACCURACY-5,4<<SP_ACCURACY-5))
+      selfHit = 1;
+    Sint32 distance = spMul((bx >> BULLET_ACCURACY)-(-level.width-(1<<SP_ACCURACY-2)),
+              (bx >> BULLET_ACCURACY)-(-level.width-(1<<SP_ACCURACY-2)))+
+        spMul((by >> BULLET_ACCURACY)-(level.ship[0].y),
+              (by >> BULLET_ACCURACY)-(level.ship[0].y));
+    if (distance < nearest)
+      nearest = distance;
+  }
+  return nearest;
+}
+
+#define KI_TRIES 5
+
+void ki_search_best()
+{
+  Sint32 ki_step = (ki_to-ki_from)/(KI_TRIES+1);
+  Sint32 best = ki_from;
+  Sint32 best_value = ki_getDistanceFromPlayer1(best);
+  Sint32 second = ki_to;
+  Sint32 second_value = ki_getDistanceFromPlayer1(second);
+  Sint32 ki_try;
+  for (ki_try = ki_from+ki_step; ki_try <= ki_to-ki_step; ki_try+=ki_step)
+  {
+    Sint32 value = ki_getDistanceFromPlayer1(ki_try);
+    if (value < best_value && ki_try!=second)
+    {
+      best = ki_try;
+      best_value = value;
+    }
+    else
+    if (value < second_value && ki_try!=best)
+    {
+      second = ki_try;
+      second_value = value;
+    }
+  }
+  if (best < second)
+  {
+    ki_from = best;
+    ki_to = second;
+  }
+  else
+  {
+    ki_from = second;
+    ki_to = best;
+  }
+  level.ship[1].direction = best;
 }
 
 void deleteLevel()
@@ -309,25 +432,43 @@ void drawLevel()
   sprintf(buffer,"-%.2f",(float)level.ship[1].energy/SP_ACCURACY_FACTOR);
   spFontDrawRight(screen->w-2,2+getFont(1)->maxheight,-1,buffer,getFont(2));
 
-  if (momPlayer == 0)
+  if (game_mode < 2)
   {
-    sprintf(buffer,"< Green Player");
-    spFontDrawMiddle(screen->w/2,2,-1,buffer,getFont(4));  
+    if (momPlayer == 0)
+    {
+      sprintf(buffer,"< Green Player");
+      spFontDrawMiddle(screen->w/2,2,-1,buffer,getFont(4));  
+    }
+    else
+    {
+      sprintf(buffer,"Blue Player >");
+      spFontDrawMiddle(screen->w/2,2,-1,buffer,getFont(5));  
+    }
+    sprintf(buffer,"Distance: %.2f",(float)level.width/SP_ACCURACY_FACTOR);
+    spFontDrawMiddle(screen->w/2,2+getFont(4)->maxheight,-1,buffer,getFont(3));  
   }
   else
   {
-    sprintf(buffer,"Blue Player >");
-    spFontDrawMiddle(screen->w/2,2,-1,buffer,getFont(5));  
+    if (winner == 0)
+    {
+      sprintf(buffer,"Green Player won");
+      spFontDrawMiddle(screen->w/2,screen->h/2,-1,buffer,getFont(4));  
+    }
+    else
+    {
+      sprintf(buffer,"Blue Player won");
+      spFontDrawMiddle(screen->w/2,screen->h/2,-1,buffer,getFont(5));  
+    }    
+    sprintf(buffer,"Press (A)");
+    spFontDrawMiddle(screen->w/2,screen->h/2+getFont(4)->maxheight,-1,buffer,getFont(3));  
   }
-  sprintf(buffer,"Distance: %.2f",(float)level.width/SP_ACCURACY_FACTOR);
-  spFontDrawMiddle(screen->w/2,2+getFont(4)->maxheight,-1,buffer,getFont(3));  
-  
 
   sprintf(buffer,"%is left",(countdown+999)/1000);
-  spFontDrawMiddle(screen->w/2,screen->h-getFont(0)->maxheight,-1,buffer,getFont(0));  
+  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(0)->maxheight-getFont(3)->maxheight,-1,buffer,getFont(0));
+  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press (Start) to exit",getFont(3));
 }
 
-void calcLevel(Sint32 steps)
+int calcLevel(Sint32 steps)
 {
   levelTime += steps;
   countdown -= steps;
@@ -343,59 +484,64 @@ void calcLevel(Sint32 steps)
   if (game_mode == 0)
   {
     //ship control
-    Sint32 slow_shift = 0;
-    if (spGetInput()->button[SP_BUTTON_B])
-      slow_shift = 2;
-    if (!momPlayer)
+    if (ki == 0 || momPlayer == 0)
     {
-      if (spGetInput()->axis[1]<0)
+      Sint32 slow_shift = 0;
+      if (spGetInput()->button[SP_BUTTON_B])
+        slow_shift = 2;
+      if (!momPlayer)
       {
-        level.ship[momPlayer].direction+=steps<<SP_ACCURACY-10-slow_shift;
-        if (level.ship[momPlayer].direction >= SP_PI)
-          level.ship[momPlayer].direction = SP_PI-(1<<SP_ACCURACY-10);
+        if (spGetInput()->axis[1]<0)
+        {
+          level.ship[momPlayer].direction+=steps<<SP_ACCURACY-10-slow_shift;
+          if (level.ship[momPlayer].direction >= SP_PI)
+            level.ship[momPlayer].direction = SP_PI-(1<<SP_ACCURACY-10);
+        }
+        if (spGetInput()->axis[1]>0)
+        {
+          level.ship[momPlayer].direction-=steps<<SP_ACCURACY-10-slow_shift;
+          if (level.ship[momPlayer].direction <= 0)
+            level.ship[momPlayer].direction = (1<<SP_ACCURACY-10);
+        }
       }
-      if (spGetInput()->axis[1]>0)
+      else
       {
-        level.ship[momPlayer].direction-=steps<<SP_ACCURACY-10-slow_shift;
-        if (level.ship[momPlayer].direction <= 0)
-          level.ship[momPlayer].direction = (1<<SP_ACCURACY-10);
+        if (spGetInput()->axis[1]>0)
+        {
+          level.ship[momPlayer].direction+=steps<<SP_ACCURACY-10-slow_shift;
+          if (level.ship[momPlayer].direction >= 2*SP_PI)
+            level.ship[momPlayer].direction = 2*SP_PI-(1<<SP_ACCURACY-10);
+        }
+        if (spGetInput()->axis[1]<0)
+        {
+          level.ship[momPlayer].direction-=steps<<SP_ACCURACY-10-slow_shift;
+          if (level.ship[momPlayer].direction <= SP_PI)
+            level.ship[momPlayer].direction = SP_PI+(1<<SP_ACCURACY-10);
+        }
+      }
+      if ((!momPlayer && spGetInput()->axis[0]<0) || (momPlayer && spGetInput()->axis[0]>0))
+      {
+        level.ship[momPlayer].energy-=steps<<SP_ACCURACY-10-slow_shift;
+        if (level.ship[momPlayer].energy < (0<<SP_ACCURACY-1))
+          level.ship[momPlayer].energy = 0<<SP_ACCURACY-1;
+      }
+      if ((!momPlayer && spGetInput()->axis[0]>0) || (momPlayer && spGetInput()->axis[0]<0))
+      {
+        level.ship[momPlayer].energy+=steps<<SP_ACCURACY-10-slow_shift;
+        if (level.ship[momPlayer].energy > (2<<SP_ACCURACY))
+          level.ship[momPlayer].energy = 2<<SP_ACCURACY;
+        if (level.ship[momPlayer].energy >= level.ship[momPlayer].allEnergy)
+          level.ship[momPlayer].energy = level.ship[momPlayer].allEnergy;
       }
     }
     else
     {
-      if (spGetInput()->axis[1]>0)
-      {
-        level.ship[momPlayer].direction+=steps<<SP_ACCURACY-10-slow_shift;
-        if (level.ship[momPlayer].direction >= 2*SP_PI)
-          level.ship[momPlayer].direction = 2*SP_PI-(1<<SP_ACCURACY-10);
-      }
-      if (spGetInput()->axis[1]<0)
-      {
-        level.ship[momPlayer].direction-=steps<<SP_ACCURACY-10-slow_shift;
-        if (level.ship[momPlayer].direction <= SP_PI)
-          level.ship[momPlayer].direction = SP_PI+(1<<SP_ACCURACY-10);
-      }
-    }
-    if ((!momPlayer && spGetInput()->axis[0]<0) || (momPlayer && spGetInput()->axis[0]>0))
-    {
-      level.ship[momPlayer].energy-=steps<<SP_ACCURACY-10-slow_shift;
-      if (level.ship[momPlayer].energy < (0<<SP_ACCURACY-1))
-        level.ship[momPlayer].energy = 0<<SP_ACCURACY-1;
-    }
-    if ((!momPlayer && spGetInput()->axis[0]>0) || (momPlayer && spGetInput()->axis[0]<0))
-    {
-      level.ship[momPlayer].energy+=steps<<SP_ACCURACY-10-slow_shift;
-      if (level.ship[momPlayer].energy > (2<<SP_ACCURACY))
-        level.ship[momPlayer].energy = 2<<SP_ACCURACY;
-      if (level.ship[momPlayer].energy >= level.ship[momPlayer].allEnergy)
-        level.ship[momPlayer].energy = level.ship[momPlayer].allEnergy;
+      ki_search_best();
+      spGetInput()->button[SP_BUTTON_A] = 1;
     }
     if (spGetInput()->button[SP_BUTTON_A])
     {
       spGetInput()->button[SP_BUTTON_A] = 0;
-      level.ship[momPlayer].allEnergy -= level.ship[momPlayer].energy;
-      if (level.ship[momPlayer].energy >= level.ship[momPlayer].allEnergy)
-        level.ship[momPlayer].energy = level.ship[momPlayer].allEnergy;      
       game_mode = 1;
       countdown = MAX_COUNTDOWN_FLYING;
       if (momPlayer == 0)
@@ -410,6 +556,9 @@ void calcLevel(Sint32 steps)
       level.bullet.dx = spMul(spSin(level.ship[momPlayer].direction),level.ship[momPlayer].energy);
       level.bullet.dy = spMul(spCos(level.ship[momPlayer].direction),level.ship[momPlayer].energy);
       nextTrace();
+      level.ship[momPlayer].allEnergy -= level.ship[momPlayer].energy;
+      if (level.ship[momPlayer].energy >= level.ship[momPlayer].allEnergy)
+        level.ship[momPlayer].energy = level.ship[momPlayer].allEnergy;      
     }
     if (countdown <= 0)
     {
@@ -418,11 +567,17 @@ void calcLevel(Sint32 steps)
     }
   }
   else
+  if (game_mode == 1)
   {
     int i;
     int hit = 0;
+    int out = 0;
+    int selfHit = 0;
+    int enemyHit = 0;
     for (i = 0; i < steps; i++)
     {
+      if (hit || out || selfHit || enemyHit)
+        break;
       Sint32 gx = 0;
       Sint32 gy = 0;
       
@@ -449,20 +604,79 @@ void calcLevel(Sint32 steps)
       level.bullet.x += level.bullet.dx;
       level.bullet.y += level.bullet.dy;
       addTracePoint(level.bullet.x>>BULLET_ACCURACY,level.bullet.y>>BULLET_ACCURACY);
+      if ((level.bullet.x >> BULLET_ACCURACY) < -level.width *5/2 ||
+          (level.bullet.x >> BULLET_ACCURACY) >  level.width *5/2  ||
+          (level.bullet.y >> BULLET_ACCURACY) < -(5<<SP_ACCURACY-1) ||
+          (level.bullet.y >> BULLET_ACCURACY) >  (5<<SP_ACCURACY-1))
+        out = 1;
+      if (spMul((level.bullet.x >> BULLET_ACCURACY)-(-level.width-(1<<SP_ACCURACY-2)),
+                (level.bullet.x >> BULLET_ACCURACY)-(-level.width-(1<<SP_ACCURACY-2)))+
+          spMul((level.bullet.y >> BULLET_ACCURACY)-(level.ship[0].y),
+                (level.bullet.y >> BULLET_ACCURACY)-(level.ship[0].y)) <
+          spMul(4<<SP_ACCURACY-5,4<<SP_ACCURACY-5))
+      {
+        if (momPlayer == 0)
+          selfHit = 1;
+        else
+          enemyHit = 1;
+      }
+      if (spMul((level.bullet.x >> BULLET_ACCURACY)-(level.width+(1<<SP_ACCURACY-2)),
+                (level.bullet.x >> BULLET_ACCURACY)-(level.width+(1<<SP_ACCURACY-2)))+
+          spMul((level.bullet.y >> BULLET_ACCURACY)-(level.ship[1].y),
+                (level.bullet.y >> BULLET_ACCURACY)-(level.ship[1].y)) <
+          spMul(4<<SP_ACCURACY-5,4<<SP_ACCURACY-5))
+      {
+        if (momPlayer == 1)
+          selfHit = 1;
+        else
+          enemyHit = 1;
+      }
     }
-    int out = 0;
-    if ((level.bullet.x >> BULLET_ACCURACY) < -level.width *5/2 ||
-        (level.bullet.x >> BULLET_ACCURACY) >  level.width *5/2  ||
-        (level.bullet.y >> BULLET_ACCURACY) < -(5<<SP_ACCURACY-1) ||
-        (level.bullet.y >> BULLET_ACCURACY) >  (5<<SP_ACCURACY-1))
-      out = 1;
+    if (selfHit)
+    {
+      winner = 1-momPlayer;
+      game_mode = 2;
+      printf("Player %i won\n",winner);
+      countdown = 20000;
+      spGetInput()->button[SP_BUTTON_A] = 0;
+    }
+    else
+    if (enemyHit)
+    {
+      winner = momPlayer;
+      game_mode = 2;
+      printf("Player %i won\n",winner);
+      countdown = 20000;
+      spGetInput()->button[SP_BUTTON_A] = 0;
+    }
+    else
     if (countdown <= 0 || hit || out)
     {
       momPlayer = 1-momPlayer;
-      game_mode = 0;
-      countdown = MAX_COUNTDOWN_TARGETING;
+      if (level.ship[momPlayer].allEnergy <= 0)
+      {
+        winner = 1-momPlayer;
+        game_mode = 2;
+        printf("Player %i won\n",winner);
+        countdown = 20000;
+        spGetInput()->button[SP_BUTTON_A] = 0;
+      }
+      else
+      {
+        game_mode = 0;
+        countdown = MAX_COUNTDOWN_TARGETING;
+      }
     }
   }
+  else
+  {
+    if (spGetInput()->button[SP_BUTTON_A] || countdown <= 0)
+    {
+      spGetInput()->button[SP_BUTTON_A] = 0;
+      return 1;
+    }
+  }
+  return 0;
 }
 
 void quitLevel()

@@ -76,8 +76,8 @@ all: schwerkraft
 targets:
 	@echo "gp2x, open2x (like gp2x, but dynamic compiled => smaller), wiz caanoo, dingux, pandora, maemo5, maemo6"
 
-schwerkraft: schwerkraft.c planet.o level.o ship.o font.o trace.o
-	$(CPP) $(CFLAGS) schwerkraft.c planet.o level.o ship.o font.o trace.o $(SDL) $(INCLUDE) -L. $(LIB) $(STATIC) $(DYNAMIC) -lsparrow3d -o schwerkraft
+schwerkraft: schwerkraft.c planet.o level.o ship.o font.o trace.o menu.o
+	$(CPP) $(CFLAGS) schwerkraft.c planet.o level.o ship.o font.o trace.o menu.o $(SDL) $(INCLUDE) -L. $(LIB) $(STATIC) $(DYNAMIC) -lsparrow3d -o schwerkraft
 
 planet.o: planet.c planet.h
 	$(CPP) $(CFLAGS) -c planet.c $(SDL) $(INCLUDE)
@@ -93,6 +93,9 @@ font.o: font.c font.h
 
 trace.o: trace.c trace.h
 	$(CPP) $(CFLAGS) -c trace.c $(SDL) $(INCLUDE)
+
+menu.o: menu.c menu.h
+	$(CPP) $(CFLAGS) -c menu.c $(SDL) $(INCLUDE)
 
 clean:
 	rm *.o
