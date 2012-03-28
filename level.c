@@ -499,7 +499,7 @@ int calcLevel(Sint32 steps)
     if (ki == 0 || momPlayer == 0)
     {
       Sint32 slow_shift = 0;
-      if (spGetInput()->button[SP_BUTTON_B])
+      if (spGetInput()->button[SP_BUTTON_A])
         slow_shift = 2;
       if (!momPlayer)
       {
@@ -549,11 +549,11 @@ int calcLevel(Sint32 steps)
     else
     {
       ki_search_best();
-      spGetInput()->button[SP_BUTTON_A] = 1;
+      spGetInput()->button[SP_BUTTON_B] = 1;
     }
-    if (spGetInput()->button[SP_BUTTON_A])
+    if (spGetInput()->button[SP_BUTTON_B])
     {
-      spGetInput()->button[SP_BUTTON_A] = 0;
+      spGetInput()->button[SP_BUTTON_B] = 0;
       game_mode = 1;
       countdown = MAX_COUNTDOWN_FLYING;
       if (momPlayer == 0)
@@ -650,7 +650,7 @@ int calcLevel(Sint32 steps)
       game_mode = 2;
       printf("Player %i won\n",winner);
       countdown = 20000;
-      spGetInput()->button[SP_BUTTON_A] = 0;
+      spGetInput()->button[SP_BUTTON_B] = 0;
     }
     else
     if (enemyHit)
@@ -659,7 +659,7 @@ int calcLevel(Sint32 steps)
       game_mode = 2;
       printf("Player %i won\n",winner);
       countdown = 20000;
-      spGetInput()->button[SP_BUTTON_A] = 0;
+      spGetInput()->button[SP_BUTTON_B] = 0;
     }
     else
     if (countdown <= 0 || hit || out)
@@ -671,7 +671,7 @@ int calcLevel(Sint32 steps)
         game_mode = 2;
         printf("Player %i won\n",winner);
         countdown = 20000;
-        spGetInput()->button[SP_BUTTON_A] = 0;
+        spGetInput()->button[SP_BUTTON_B] = 0;
       }
       else
       {
@@ -682,9 +682,9 @@ int calcLevel(Sint32 steps)
   }
   else
   {
-    if (spGetInput()->button[SP_BUTTON_A] || countdown <= 0)
+    if (spGetInput()->button[SP_BUTTON_B] || countdown <= 0)
     {
-      spGetInput()->button[SP_BUTTON_A] = 0;
+      spGetInput()->button[SP_BUTTON_B] = 0;
       return 1;
     }
   }
