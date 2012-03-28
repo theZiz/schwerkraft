@@ -3,7 +3,7 @@
 # -DFAST_MULTIPLICATION <- looks good at small resolutions
 # -DFAST_DIVISION <- looks good at small resolutions
 #==stuff linked to
-DYNAMIC = -lSDL_ttf -lSDL_image -lSDL -lm
+DYNAMIC = -lSDL_mixer -lSDL_ttf -lSDL_image -lSDL -lm
 #==global Flags. Even on the gp2x with 16 kb Cache, -O3 is much better then -Os
 CFLAGS = -O3 -fsingle-precision-constant -fPIC 
 CFLAGS_ASM = -O2 -fsingle-precision-constant -fPIC
@@ -76,8 +76,8 @@ all: schwerkraft
 targets:
 	@echo "gp2x, open2x (like gp2x, but dynamic compiled => smaller), wiz caanoo, dingux, pandora, maemo5, maemo6"
 
-schwerkraft: schwerkraft.c planet.o level.o ship.o font.o trace.o menu.o
-	$(CPP) $(CFLAGS) schwerkraft.c planet.o level.o ship.o font.o trace.o menu.o $(SDL) $(INCLUDE) -L. $(LIB) $(STATIC) $(DYNAMIC) -lsparrow3d -o schwerkraft
+schwerkraft: schwerkraft.c planet.o level.o ship.o font.o trace.o menu.o music.o
+	$(CPP) $(CFLAGS) schwerkraft.c planet.o level.o ship.o font.o trace.o menu.o music.o $(SDL) $(INCLUDE) -L. $(LIB) $(STATIC) $(DYNAMIC) -lsparrow3d -o schwerkraft
 
 planet.o: planet.c planet.h
 	$(CPP) $(CFLAGS) -c planet.c $(SDL) $(INCLUDE)
@@ -96,6 +96,9 @@ trace.o: trace.c trace.h
 
 menu.o: menu.c menu.h
 	$(CPP) $(CFLAGS) -c menu.c $(SDL) $(INCLUDE)
+
+music.o: music.c music.h
+	$(CPP) $(CFLAGS) -c music.c $(SDL) $(INCLUDE)
 
 clean:
 	rm *.o

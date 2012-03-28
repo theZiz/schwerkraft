@@ -17,24 +17,13 @@
  For feedback and questions about my Files and Projects please mail me,     
  Alexander Matthes (Ziz) , zizsdl_at_googlemail.com                         
 */
-#ifndef _MENU_H
-#define _MENU_H
-
-#include <SDL.h>
+#ifndef _MUSIC_H
+#define _MUSIC_H
+#include <SDL/SDL_mixer.h>
 #include "../sparrow3d/sparrow3d.h"
-
-void init_menu_stuff();
-
-void draw_menu();
-
-int calc_menu(Sint32 steps);
-
-void draw_about();
-
-int calc_about(Sint32 steps);
-
-void draw_help();
-
-int calc_help(Sint32 steps);
-
+void init_music();
+void set_volume(int volume);
+void draw_music();
+void calc_music(int steps);
+void quit_music();
 #endif

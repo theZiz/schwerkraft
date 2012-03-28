@@ -15,12 +15,14 @@ void draw_game(void)
 
   spSetZSet(0);
   spSetZTest(0);
+  draw_music();
   
   spFlip();
 }
 
 int calc_game(Uint32 steps)
 {
+  calc_music(steps);
   if (spGetInput()->button[SP_BUTTON_START])
   {
     spGetInput()->button[SP_BUTTON_START] = 0;
@@ -36,7 +38,6 @@ void resize(Uint16 w,Uint16 h)
   reloadFont();
 }
 
-
 int main(int argc, char **argv)
 {
   spInitCore();
@@ -49,6 +50,7 @@ int main(int argc, char **argv)
   
   init_menu_stuff();
   initLevel();
+  init_music();
   int result = 1;
   while (result)
   {
@@ -63,6 +65,9 @@ int main(int argc, char **argv)
         createRandomLevel(1);
         result = spLoop(draw_game,calc_game,10,resize);
         break;
+      case 3:
+        spLoop(draw_help,calc_help,10,resize);
+        break;
       case 4:
         spLoop(draw_about,calc_about,10,resize);
         break;
@@ -73,6 +78,7 @@ int main(int argc, char **argv)
   }
   quitLevel();
   quit_menu_stuff();
+  quit_music();
   quitFont();
   
   spQuitCore();
