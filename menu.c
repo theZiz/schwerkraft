@@ -193,10 +193,10 @@ void draw_help()
       spFontDrawMiddle(screen->w/2, 4*screen->h/16,-1,"With left and right on your "SP_PAD_NAME,getFont(3));
       spFontDrawMiddle(screen->w/2, 5*screen->h/16,-1,"you can change the amount of energy used",getFont(3));
       spFontDrawMiddle(screen->w/2, 6*screen->h/16,-1,"for the shoot. More energy means fewer",getFont(3));
-      spFontDrawMiddle(screen->w/2, 7*screen->h/16,-1,"redirection but also a fewer amount of",getFont(3));
-      spFontDrawMiddle(screen->w/2, 8*screen->h/16,-1,"total shoots. With up and down you can",getFont(3));
-      spFontDrawMiddle(screen->w/2, 9*screen->h/16,-1,"change the angle of shooting. Finally",getFont(3));
-      spFontDrawMiddle(screen->w/2,10*screen->h/16,-1,"you shoot with ("SP_BUTTON_A_NAME").",getFont(3));
+      spFontDrawMiddle(screen->w/2, 7*screen->h/16,-1,"redirection but also a fewer amount of total",getFont(3));
+      spFontDrawMiddle(screen->w/2, 8*screen->h/16,-1,"shoots. With up and down you can change the",getFont(3));
+      spFontDrawMiddle(screen->w/2, 9*screen->h/16,-1,"angle of shooting. Finally you shoot with ("SP_BUTTON_A_NAME").",getFont(3));
+      spFontDrawMiddle(screen->w/2,10*screen->h/16,-1,"Hold ("SP_BUTTON_B_NAME") pressed for more accurate control.",getFont(3));
       spFontDrawMiddle(3*screen->w/5,23*screen->h/32,-1,"In the upper left and right",getFont(3));
       spFontDrawMiddle(3*screen->w/5,25*screen->h/32,-1,"corner you see your total",getFont(3));
       spFontDrawMiddle(3*screen->w/5,27*screen->h/32,-1,"energy, shoot energy and angle.",getFont(3));
