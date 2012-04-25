@@ -175,7 +175,7 @@ void draw_help()
       spFontDrawMiddle(screen->w/2, 8*screen->h/16,-1,"ship in the nowhere. Nearly out of",getFont(3));
       spFontDrawMiddle(screen->w/2, 9*screen->h/16,-1,"energy you have no choice but to fight",getFont(3));
       spFontDrawMiddle(screen->w/2,10*screen->h/16,-1,"for the planets.",getFont(3));
-      spFontDrawMiddle(screen->w/3,12*screen->h/16,-1,"Press (L) and (R) to select",getFont(3));
+      spFontDrawMiddle(screen->w/3,12*screen->h/16,-1,"Press ("SP_BUTTON_L_NAME") or ("SP_BUTTON_R_NAME") to select",getFont(3));
       spFontDrawMiddle(screen->w/3,13*screen->h/16,-1,"the previous or next page.",getFont(3));
       spRotozoomSurface(5*screen->w/6,12*screen->h/16,-1,help[0],spGetSizeFactor()/2,spGetSizeFactor()/2,0);
       spFontDrawMiddle(5*screen->w/6,13*screen->h/16,-1,"a ship",getFont(3));
