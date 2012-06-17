@@ -33,7 +33,7 @@
 SDL_Surface* planet_texture[10];
 spModelPointer ship[2];
 spModelPointer gun;
-spModelPointer bullet;
+//spModelPointer bullet;
 Sint32 levelTime = 0;
 tLevel level;
 Sint32 momPlayer = 0;
@@ -76,7 +76,7 @@ void initLevel()
   for (i = 0; i < ship[1]->pointCount; i++)
     ship[1]->point[i].x = -ship[1]->point[i].x;
   gun = spMeshLoadObjSize("./data/gun.obj",NULL,65535,1<<SP_ACCURACY-4);
-  bullet = spMeshLoadObj("./data/bullet.obj",NULL,65535);
+  //bullet = spMeshLoadObj("./data/bullet.obj",NULL,65535);
 }
 
 #define MIN_PLANETS 2
@@ -471,13 +471,13 @@ void drawLevel()
       sprintf(buffer,"Blue Player won");
       spFontDrawMiddle(screen->w/2,screen->h/2,-1,buffer,getFont(5));  
     }    
-    sprintf(buffer,"Press ("SP_BUTTON_B_NAME")");
+    sprintf(buffer,"Press [B]");
     spFontDrawMiddle(screen->w/2,screen->h/2+getFont(4)->maxheight,-1,buffer,getFont(3));  
   }
 
   sprintf(buffer,"%is left",(countdown+999)/1000);
   spFontDrawMiddle(screen->w/2,screen->h-2-getFont(0)->maxheight-getFont(3)->maxheight,-1,buffer,getFont(0));
-  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press ("SP_BUTTON_START_NAME") to exit",getFont(3));
+  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press [S] to exit",getFont(3));
 }
 
 int calcLevel(Sint32 steps)
@@ -702,5 +702,5 @@ void quitLevel()
   spMeshDelete(ship[0]);
   spMeshDelete(ship[1]);
   spMeshDelete(gun);
-  spMeshDelete(bullet);
+  //spMeshDelete(bullet);
 }

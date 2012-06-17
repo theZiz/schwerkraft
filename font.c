@@ -53,6 +53,16 @@ void reloadFont()
   spFontAddBorder(font[3],48631);
   spFontReplaceColor(font[3],0,SP_ALPHA_COLOR);
 
+  spFontAddButton( font[3], 'A', SP_BUTTON_A_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'B', SP_BUTTON_B_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'X', SP_BUTTON_X_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'Y', SP_BUTTON_Y_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'L', SP_BUTTON_L_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'R', SP_BUTTON_R_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'S', SP_BUTTON_START_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'E', SP_BUTTON_SELECT_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+
+
   if (font[4])
     spFontDelete(font[4]);
   font[4] = spFontLoad(FONT_LOCATION,FONT_SIZE_4*spGetSizeFactor()>>SP_ACCURACY);

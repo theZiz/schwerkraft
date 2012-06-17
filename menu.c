@@ -62,13 +62,13 @@ void draw_menu()
   spFontDrawMiddle(screen->w/2,11*screen->h/16,-1,"About",getFont((menu_choice!=4)*2));  
   spFontDrawMiddle(screen->w/2,13*screen->h/16,-1,"Quit",getFont((menu_choice!=5)*2));
 
-  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press ("SP_BUTTON_B_NAME") to select a point or ("SP_BUTTON_START_NAME") to exit",getFont(3));
+  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press [B] to select a point or [S] to exit",getFont(3));
   draw_music();
   
   spFlip();
 }
 
-int calc_menu(Sint32 steps)
+int calc_menu(Uint32 steps)
 {
   calc_music(steps);
   if (wait_for_release<0 && spGetInput()->axis[1]>=0)
@@ -122,13 +122,13 @@ void draw_about()
   
   spRotozoomSurface(screen->w/2,4*screen->h/5,-1,banner,spGetSizeFactor()*2/5,spGetSizeFactor()*2/5,0);
   
-  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press ("SP_BUTTON_B_NAME") to select a point or ("SP_BUTTON_START_NAME") to exit",getFont(3));
+  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press [B] to select a point or [S] to exit",getFont(3));
  
   draw_music();
   spFlip();
 }
 
-int calc_about(Sint32 steps)
+int calc_about(Uint32 steps)
 {
   calc_music(steps);
   if (spGetInput()->button[SP_BUTTON_B])
@@ -175,7 +175,7 @@ void draw_help()
       spFontDrawMiddle(screen->w/2, 8*screen->h/16,-1,"ship in the nowhere. Nearly out of",getFont(3));
       spFontDrawMiddle(screen->w/2, 9*screen->h/16,-1,"energy you have no choice but to fight",getFont(3));
       spFontDrawMiddle(screen->w/2,10*screen->h/16,-1,"for the planets.",getFont(3));
-      spFontDrawMiddle(screen->w/3,12*screen->h/16,-1,"Press ("SP_BUTTON_L_NAME") or ("SP_BUTTON_R_NAME") to select",getFont(3));
+      spFontDrawMiddle(screen->w/3,12*screen->h/16,-1,"Press [L] or [R] to select",getFont(3));
       spFontDrawMiddle(screen->w/3,13*screen->h/16,-1,"the previous or next page.",getFont(3));
       spRotozoomSurface(5*screen->w/6,12*screen->h/16,-1,help[0],spGetSizeFactor()/2,spGetSizeFactor()/2,0);
       spFontDrawMiddle(5*screen->w/6,13*screen->h/16,-1,"a ship",getFont(3));
@@ -196,7 +196,7 @@ void draw_help()
       spFontDrawMiddle(screen->w/2, 7*screen->h/16,-1,"redirection but also a fewer amount of total",getFont(3));
       spFontDrawMiddle(screen->w/2, 8*screen->h/16,-1,"shoots. With up and down you can change the",getFont(3));
       spFontDrawMiddle(screen->w/2, 9*screen->h/16,-1,"angle of shooting. Finally you shoot with ("SP_BUTTON_B_NAME").",getFont(3));
-      spFontDrawMiddle(screen->w/2,10*screen->h/16,-1,"Hold ("SP_BUTTON_A_NAME") pressed for more accurate control.",getFont(3));
+      spFontDrawMiddle(screen->w/2,10*screen->h/16,-1,"Hold [A] pressed for more accurate control.",getFont(3));
       spFontDrawMiddle(3*screen->w/5,23*screen->h/32,-1,"In the upper left and right",getFont(3));
       spFontDrawMiddle(3*screen->w/5,25*screen->h/32,-1,"corner you see your total",getFont(3));
       spFontDrawMiddle(3*screen->w/5,27*screen->h/32,-1,"energy, shoot energy and angle.",getFont(3));
@@ -223,13 +223,13 @@ void draw_help()
   char buffer[256];
   sprintf(buffer,"Page %i of 4",help_page);
   spFontDrawMiddle(screen->w/2,2,-1,buffer,getFont(3));
-  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press ("SP_BUTTON_B_NAME") to select a point or ("SP_BUTTON_START_NAME") to exit",getFont(3));
+  spFontDrawMiddle(screen->w/2,screen->h-2-getFont(3)->maxheight,-1,"Press [B] to select a point or [S] to exit",getFont(3));
  
   draw_music();
   spFlip();
 }
 
-int calc_help(Sint32 steps)
+int calc_help(Uint32 steps)
 {
   calc_music(steps);
   if (spGetInput()->button[SP_BUTTON_L])

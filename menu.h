@@ -27,14 +27,14 @@ void init_menu_stuff();
 
 void draw_menu();
 
-int calc_menu(Sint32 steps);
+int calc_menu(Uint32 steps);
 
 void draw_about();
 
-int calc_about(Sint32 steps);
+int calc_about(Uint32 steps);
 
 void draw_help();
 
-int calc_help(Sint32 steps);
+int calc_help(Uint32 steps);
 
 #endif

@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 {
   spInitCore();
   
-  screen = spCreateWindow();
+  screen = spCreateDefaultWindow();
   resize(screen->w,screen->h);
   
   spSetAlphaTest(1);
@@ -54,22 +54,22 @@ int main(int argc, char **argv)
   int result = 1;
   while (result)
   {
-    result = spLoop(draw_menu,calc_menu,10,resize);
+    result = spLoop(draw_menu,calc_menu,10,resize,NULL);
     switch (result)
     {
       case 1:
         createRandomLevel(0);
-        result = spLoop(draw_game,calc_game,10,resize);
+        result = spLoop(draw_game,calc_game,10,resize,NULL);
         break;
       case 2:
         createRandomLevel(1);
-        result = spLoop(draw_game,calc_game,10,resize);
+        result = spLoop(draw_game,calc_game,10,resize,NULL);
         break;
       case 3:
-        spLoop(draw_help,calc_help,10,resize);
+        spLoop(draw_help,calc_help,10,resize,NULL);
         break;
       case 4:
-        spLoop(draw_about,calc_about,10,resize);
+        spLoop(draw_about,calc_about,10,resize,NULL);
         break;
       case 5:
         result = 0;
