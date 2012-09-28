@@ -414,7 +414,18 @@ void drawLevel()
     spRotateX(planet->rx);
     spRotateY(planet->ry);
     spRotateZ(planet->rz);
+    if (planet->kind != PLANET_NORMAL)
+			spSetPattern8(170,//0b10101010, //0b doesn't work with older gcc versions
+										 85,//0b01010101,
+										170,//0b10101010,
+										 85,//0b01010101,
+										170,//0b10101010,
+										 85,//0b01010101,
+										170,//0b10101010,
+										 85);//0b01010101);    
     spMesh3D(planet->mesh,0);
+    if (planet->kind != PLANET_NORMAL)
+			spDeactivatePattern();
     memcpy(spGetMatrix(),matrix,64);
   }
   
@@ -503,13 +514,13 @@ int calcLevel(Sint32 steps)
         slow_shift = 2;
       if (!momPlayer)
       {
-        if (spGetInput()->axis[1]<0)
+        if (spGetInput()->axis[1]>0)
         {
           level.ship[momPlayer].direction+=steps<<SP_ACCURACY-10-slow_shift;
           if (level.ship[momPlayer].direction >= SP_PI-(1<<SP_ACCURACY-10))
             level.ship[momPlayer].direction = SP_PI-(1<<SP_ACCURACY-10);
         }
-        if (spGetInput()->axis[1]>0)
+        if (spGetInput()->axis[1]<0)
         {
           level.ship[momPlayer].direction-=steps<<SP_ACCURACY-10-slow_shift;
           if (level.ship[momPlayer].direction <= (1<<SP_ACCURACY-10))
@@ -518,13 +529,13 @@ int calcLevel(Sint32 steps)
       }
       else
       {
-        if (spGetInput()->axis[1]>0)
+        if (spGetInput()->axis[1]<0)
         {
           level.ship[momPlayer].direction+=steps<<SP_ACCURACY-10-slow_shift;
           if (level.ship[momPlayer].direction >= 2*SP_PI-(1<<SP_ACCURACY-10))
             level.ship[momPlayer].direction = 2*SP_PI-(1<<SP_ACCURACY-10);
         }
-        if (spGetInput()->axis[1]<0)
+        if (spGetInput()->axis[1]>0)
         {
           level.ship[momPlayer].direction-=steps<<SP_ACCURACY-10-slow_shift;
           if (level.ship[momPlayer].direction <= SP_PI+(1<<SP_ACCURACY-10))

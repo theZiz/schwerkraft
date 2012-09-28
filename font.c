@@ -28,28 +28,28 @@ void reloadFont()
   if (font[0])
     spFontDelete(font[0]);
   font[0] = spFontLoad(FONT_LOCATION,FONT_SIZE_0*spGetSizeFactor()>>SP_ACCURACY);
-  spFontAddRange(font[0],' ','~',0);//whole ASCII
+  spFontAdd(font[0],SP_FONT_GROUP_ASCII,0);//whole ASCII
   spFontAddBorder(font[0],65535);
   spFontReplaceColor(font[0],0,SP_ALPHA_COLOR);
 
   if (font[1])
     spFontDelete(font[1]);
   font[1] = spFontLoad(FONT_LOCATION,FONT_SIZE_1*spGetSizeFactor()>>SP_ACCURACY);
-  spFontAddRange(font[1],' ','~',0);//whole ASCII
+  spFontAdd(font[1],SP_FONT_GROUP_ASCII,0);//whole ASCII
   spFontAddBorder(font[1],65535);
   spFontReplaceColor(font[1],0,SP_ALPHA_COLOR);
 
   if (font[2])
     spFontDelete(font[2]);
   font[2] = spFontLoad(FONT_LOCATION,FONT_SIZE_2*spGetSizeFactor()>>SP_ACCURACY);
-  spFontAddRange(font[2],' ','~',14823);//whole ASCII
+  spFontAdd(font[2],SP_FONT_GROUP_ASCII,14823);//whole ASCII
   spFontAddBorder(font[2],48631);
   spFontReplaceColor(font[2],0,SP_ALPHA_COLOR);
 
   if (font[3])
     spFontDelete(font[3]);
   font[3] = spFontLoad(FONT_LOCATION,FONT_SIZE_3*spGetSizeFactor()>>SP_ACCURACY);
-  spFontAddRange(font[3],' ','~',14823);//whole ASCII
+  spFontAdd(font[3],SP_FONT_GROUP_ASCII,14823);//whole ASCII
   spFontAddBorder(font[3],48631);
   spFontReplaceColor(font[3],0,SP_ALPHA_COLOR);
 
@@ -66,14 +66,14 @@ void reloadFont()
   if (font[4])
     spFontDelete(font[4]);
   font[4] = spFontLoad(FONT_LOCATION,FONT_SIZE_4*spGetSizeFactor()>>SP_ACCURACY);
-  spFontAddRange(font[4],' ','~',0);//whole ASCII
+  spFontAdd(font[4],SP_FONT_GROUP_ASCII,0);//whole ASCII
   spFontAddBorder(font[4],2016);
   spFontReplaceColor(font[4],0,SP_ALPHA_COLOR);
 
   if (font[5])
     spFontDelete(font[5]);
   font[5] = spFontLoad(FONT_LOCATION,FONT_SIZE_5*spGetSizeFactor()>>SP_ACCURACY);
-  spFontAddRange(font[5],' ','~',0);//whole ASCII
+  spFontAdd(font[5],SP_FONT_GROUP_ASCII,0);//whole ASCII
   spFontAddBorder(font[5],31743);
   spFontReplaceColor(font[5],0,SP_ALPHA_COLOR);
 }

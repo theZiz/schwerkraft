@@ -71,16 +71,16 @@ void draw_menu()
 int calc_menu(Uint32 steps)
 {
   calc_music(steps);
-  if (wait_for_release<0 && spGetInput()->axis[1]>=0)
+  if (wait_for_release<0 && spGetInput()->axis[1]<=0)
    wait_for_release = 0;
-  if (wait_for_release>0 && spGetInput()->axis[1]<=0)
+  if (wait_for_release>0 && spGetInput()->axis[1]>=0)
    wait_for_release = 0;
-  if (spGetInput()->axis[1]<0 && menu_choice!=5 && wait_for_release == 0)
+  if (spGetInput()->axis[1]>0 && menu_choice!=5 && wait_for_release == 0)
   {
     wait_for_release = -1;
     menu_choice++;
   }
-  if (spGetInput()->axis[1]>0 && menu_choice!=1 && wait_for_release == 0)
+  if (spGetInput()->axis[1]<0 && menu_choice!=1 && wait_for_release == 0)
   {
     wait_for_release = 1;
     menu_choice--;
