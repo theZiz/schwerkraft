@@ -222,6 +222,8 @@ Sint32 ki_getDistanceFromPlayer1(Sint32 direction)
       Sint32 vx = planet->x-(bx >> BULLET_ACCURACY);
       Sint32 vy = planet->y-(by >> BULLET_ACCURACY);
       Sint32 vlength = spSqrt(spMulHigh(vx,vx)+spMulHigh(vy,vy));
+      if (vlength < 0 || spMulHigh(vx,vx) < 0 || spMulHigh(vy,vy) < 0)
+				printf("%i %i %i\n",vlength,spMulHigh(vx,vx),spMulHigh(vy,vy));
       if (planet->kind == PLANET_NORMAL && vlength < (planet->radius+(1<<SP_ACCURACY-5)))
         hit = 1;
       Sint32 vlength_3 = spMulHigh(spMulHigh(vlength,vlength),vlength);
@@ -423,9 +425,14 @@ void drawLevel()
 										 85,//0b01010101,
 										170,//0b10101010,
 										 85);//0b01010101);    
-    spMesh3D(planet->mesh,0);
+    //spMesh3D(planet->mesh,0);
+    spEllipse3D(0,0,0,planet->radius,planet->radius,12345);
     if (planet->kind != PLANET_NORMAL)
 			spDeactivatePattern();
+    Sint32 px,py,pz;
+    spProjectPoint3D(0,0,0,&px,&py,&pz,1);
+    sprintf(buffer,"%i",planet->radius);
+    spFontDrawMiddle(px,py,-1,buffer,getFont(3));
     memcpy(spGetMatrix(),matrix,64);
   }
   
@@ -601,9 +608,11 @@ int calcLevel(Sint32 steps)
     {
       if (hit || out || selfHit || enemyHit)
         break;
+       
       Sint32 gx = 0;
       Sint32 gy = 0;
       
+			//Collision with planets (buggy :( )
       pPlanet planet = level.firstPlanet;
       while (planet)
       {
@@ -611,7 +620,10 @@ int calcLevel(Sint32 steps)
         Sint32 vy = planet->y-(level.bullet.y >> BULLET_ACCURACY);
         Sint32 vlength = spSqrt(spMulHigh(vx,vx)+spMulHigh(vy,vy));
         if (planet->kind == PLANET_NORMAL && vlength < (planet->radius+(1<<SP_ACCURACY-5)))
+        {
           hit = 1;
+          printf("Hit with planet with radius %i\n",planet->radius);
+        }
         Sint32 vlength_3 = spMulHigh(spMulHigh(vlength,vlength),vlength);
         if (vlength_3!=0)
         {
