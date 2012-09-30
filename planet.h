@@ -31,6 +31,7 @@ typedef struct sPlanet *pPlanet;
 typedef struct sPlanet {
   Sint32 x,y;
   Sint32 radius;
+  Sint32 radius_with_bullet_sqr;
   Sint32 mass; //mass and radius determine the gravity
   Sint32 kind; //PLANET_NORMAL, PLANET_GAS (or PLANET_STAR)
   Sint32 satellite; //is 1, if the planet orbits a point in space (e.g. another planet)
