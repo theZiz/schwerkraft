@@ -402,8 +402,8 @@ void drawLevel()
 						 (1<<SP_ACCURACY-4)+level.ship[1].energy/16,-1<<SP_ACCURACY-6,0,
 						 (1<<SP_ACCURACY-4)+level.ship[1].energy/16,+1<<SP_ACCURACY-6,0,63488);
 	}
-	spSetZSet(1);
-	spSetZTest(1);
+	/*spSetZSet(1);
+	spSetZTest(1);*/
 	//spMesh3D(ship[1],0);
 	memcpy(spGetMatrix(),matrix,64); //"glPop"
 	
@@ -417,22 +417,23 @@ void drawLevel()
 		spRotateY(planet->ry);
 		spRotateZ(planet->rz);
 		if (planet->kind != PLANET_NORMAL)
-			spSetPattern8(170,//0b10101010, //0b doesn't work with older gcc versions
-										 85,//0b01010101,
-										170,//0b10101010,
-										 85,//0b01010101,
-										170,//0b10101010,
-										 85,//0b01010101,
-										170,//0b10101010,
-										 85);//0b01010101);		
-		//spMesh3D(planet->mesh,0);
-		spEllipse3D(0,0,0,planet->radius,planet->radius,12345);
+			/*spSetPattern8(170,//0b10101010, //0b doesn't work with older gcc versions
+			               85,//0b01010101,
+			              170,//0b10101010,
+			               85,//0b01010101,
+			              170,//0b10101010,
+			               85,//0b01010101,
+			              170,//0b10101010,
+			               85);//0b01010101);*/
+			spSetAlphaPattern4x4(64,0);
+		spMesh3D(planet->mesh,0);
+		//spEllipse3D(0,0,0,planet->radius,planet->radius,12345);
 		if (planet->kind != PLANET_NORMAL)
 			spDeactivatePattern();
-		Sint32 px,py,pz;
+		/*Sint32 px,py,pz;
 		spProjectPoint3D(0,0,0,&px,&py,&pz,1);
 		sprintf(buffer,"%.3f",spFixedToFloat(planet->radius));
-		spFontDrawMiddle(px,py,-1,buffer,getFont(3));
+		spFontDrawMiddle(px,py,-1,buffer,getFont(3));*/
 		memcpy(spGetMatrix(),matrix,64);
 	}
 	
