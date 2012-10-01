@@ -41,7 +41,7 @@ void resize(Uint16 w,Uint16 h)
 int main(int argc, char **argv)
 {
   spInitCore();
-  spSetDefaultWindowSize( 640, 480 ); //Creates a 640x480 window at PC instead of 320x240
+  spSetDefaultWindowSize( 800, 480 ); //Creates a 640x480 window at PC instead of 320x240
   screen = spCreateDefaultWindow();
   resize(screen->w,screen->h);
   
