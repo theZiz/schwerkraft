@@ -25,6 +25,7 @@ spFontPointer font[6] = {NULL,NULL,NULL,NULL,NULL,NULL}; //0 (biggest) to 3 (sma
 void reloadFont()
 {
   //Font Loading
+  spFontSetShadeColor(65535);
   if (font[0])
     spFontDelete(font[0]);
   font[0] = spFontLoad(FONT_LOCATION,FONT_SIZE_0*spGetSizeFactor()>>SP_ACCURACY);
@@ -39,6 +40,7 @@ void reloadFont()
   spFontAddBorder(font[1],65535);
   spFontReplaceColor(font[1],0,SP_ALPHA_COLOR);
 
+  spFontSetShadeColor(48631);
   if (font[2])
     spFontDelete(font[2]);
   font[2] = spFontLoad(FONT_LOCATION,FONT_SIZE_2*spGetSizeFactor()>>SP_ACCURACY);
@@ -63,6 +65,7 @@ void reloadFont()
   spFontAddButton( font[3], 'E', SP_BUTTON_SELECT_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
 
 
+  spFontSetShadeColor(2016);
   if (font[4])
     spFontDelete(font[4]);
   font[4] = spFontLoad(FONT_LOCATION,FONT_SIZE_4*spGetSizeFactor()>>SP_ACCURACY);
@@ -70,6 +73,7 @@ void reloadFont()
   spFontAddBorder(font[4],2016);
   spFontReplaceColor(font[4],0,SP_ALPHA_COLOR);
 
+  spFontSetShadeColor(31743);
   if (font[5])
     spFontDelete(font[5]);
   font[5] = spFontLoad(FONT_LOCATION,FONT_SIZE_5*spGetSizeFactor()>>SP_ACCURACY);

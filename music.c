@@ -86,7 +86,7 @@ void calc_music(int steps)
     volume_wait--;
     if (volume_wait < 0)
       volume_wait = 0;
-    if (spGetInput()->button[SP_BUTTON_VOLPLUS] && volume_wait<=0)
+    /*if (spGetInput()->button[SP_BUTTON_VOLPLUS] && volume_wait<=0)
     {
       if (volume<100)
         volume++;
@@ -101,7 +101,7 @@ void calc_music(int steps)
       set_volume(volume);
       volume_wait = 25;
       show_music = 1000;
-    }
+    }*/
   }
 }
 
