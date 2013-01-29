@@ -34,7 +34,7 @@ int calc_game(Uint32 steps)
 void resize(Uint16 w,Uint16 h)
 {
   spSelectRenderTarget(spGetWindowSurface());
-  spSetPerspective(50.0,(float)spGetWindowSurface()->w/(float)spGetWindowSurface()->h,0.1,100);
+  spSetPerspective(135.0,(float)spGetWindowSurface()->w/(float)spGetWindowSurface()->h,0.1,100);
   reloadFont();
 }
 
