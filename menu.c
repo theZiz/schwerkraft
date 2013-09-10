@@ -85,14 +85,14 @@ int calc_menu(Uint32 steps)
     wait_for_release = 1;
     menu_choice--;
   }
-  if (spGetInput()->button[SP_BUTTON_B])
+  if (spGetInput()->button[SP_BUTTON_B_NOWASD])
   {
-    spGetInput()->button[SP_BUTTON_B] = 0;
+    spGetInput()->button[SP_BUTTON_B_NOWASD] = 0;
     return menu_choice;  
   }
-  if (spGetInput()->button[SP_BUTTON_START])
+  if (spGetInput()->button[SP_BUTTON_START_NOWASD])
   {
-    spGetInput()->button[SP_BUTTON_START] = 0;
+    spGetInput()->button[SP_BUTTON_START_NOWASD] = 0;
     return 5;
   }
   return 0;
@@ -131,14 +131,14 @@ void draw_about()
 int calc_about(Uint32 steps)
 {
   calc_music(steps);
-  if (spGetInput()->button[SP_BUTTON_B])
+  if (spGetInput()->button[SP_BUTTON_B_NOWASD])
   {
-    spGetInput()->button[SP_BUTTON_B] = 0;
+    spGetInput()->button[SP_BUTTON_B_NOWASD] = 0;
     return 1;
   }
-  if (spGetInput()->button[SP_BUTTON_START])
+  if (spGetInput()->button[SP_BUTTON_START_NOWASD])
   {
-    spGetInput()->button[SP_BUTTON_START] = 0;
+    spGetInput()->button[SP_BUTTON_START_NOWASD] = 0;
     return 1;
   }
   return 0;
@@ -195,7 +195,7 @@ void draw_help()
       spFontDrawMiddle(screen->w/2, 6*screen->h/16,-1,"for the shoot. More energy means fewer",getFont(3));
       spFontDrawMiddle(screen->w/2, 7*screen->h/16,-1,"redirection but also a fewer amount of total",getFont(3));
       spFontDrawMiddle(screen->w/2, 8*screen->h/16,-1,"shoots. With up and down you can change the",getFont(3));
-      spFontDrawMiddle(screen->w/2, 9*screen->h/16,-1,"angle of shooting. Finally you shoot with ("SP_BUTTON_B_NAME").",getFont(3));
+      spFontDrawMiddle(screen->w/2, 9*screen->h/16,-1,"angle of shooting. Finally you shoot with [B].",getFont(3));
       spFontDrawMiddle(screen->w/2,10*screen->h/16,-1,"Hold [A] pressed for more accurate control.",getFont(3));
       spFontDrawMiddle(3*screen->w/5,23*screen->h/32,-1,"In the upper left and right",getFont(3));
       spFontDrawMiddle(3*screen->w/5,25*screen->h/32,-1,"corner you see your total",getFont(3));
@@ -232,28 +232,28 @@ void draw_help()
 int calc_help(Uint32 steps)
 {
   calc_music(steps);
-  if (spGetInput()->button[SP_BUTTON_L])
+  if (spGetInput()->button[SP_BUTTON_L_NOWASD])
   {
-    spGetInput()->button[SP_BUTTON_L] = 0;
+    spGetInput()->button[SP_BUTTON_L_NOWASD] = 0;
     help_page--;
     if (help_page<1)
       help_page = 4;
   }
-  if (spGetInput()->button[SP_BUTTON_R])
+  if (spGetInput()->button[SP_BUTTON_R_NOWASD])
   {
-    spGetInput()->button[SP_BUTTON_R] = 0;
+    spGetInput()->button[SP_BUTTON_R_NOWASD] = 0;
     help_page++;
     if (help_page>4)
       help_page = 1;
   }
-  if (spGetInput()->button[SP_BUTTON_B])
+  if (spGetInput()->button[SP_BUTTON_B_NOWASD])
   {
-    spGetInput()->button[SP_BUTTON_B] = 0;
+    spGetInput()->button[SP_BUTTON_B_NOWASD] = 0;
     return 1;
   }
-  if (spGetInput()->button[SP_BUTTON_START])
+  if (spGetInput()->button[SP_BUTTON_START_NOWASD])
   {
-    spGetInput()->button[SP_BUTTON_START] = 0;
+    spGetInput()->button[SP_BUTTON_START_NOWASD] = 0;
     return 1;
   }
   return 0;

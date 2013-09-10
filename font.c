@@ -55,15 +55,14 @@ void reloadFont()
   spFontAddBorder(font[3],48631);
   spFontReplaceColor(font[3],0,SP_ALPHA_COLOR);
 
-  spFontAddButton( font[3], 'A', SP_BUTTON_A_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
-  spFontAddButton( font[3], 'B', SP_BUTTON_B_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
-  spFontAddButton( font[3], 'X', SP_BUTTON_X_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
-  spFontAddButton( font[3], 'Y', SP_BUTTON_Y_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
-  spFontAddButton( font[3], 'L', SP_BUTTON_L_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
-  spFontAddButton( font[3], 'R', SP_BUTTON_R_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
-  spFontAddButton( font[3], 'S', SP_BUTTON_START_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
-  spFontAddButton( font[3], 'E', SP_BUTTON_SELECT_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
-
+  spFontAddButton( font[3], 'A', SP_BUTTON_A_NOWASD_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'B', SP_BUTTON_B_NOWASD_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'X', SP_BUTTON_X_NOWASD_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'Y', SP_BUTTON_Y_NOWASD_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'L', SP_BUTTON_L_NOWASD_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'R', SP_BUTTON_R_NOWASD_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'S', SP_BUTTON_START_NOWASD_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
+  spFontAddButton( font[3], 'E', SP_BUTTON_SELECT_NOWASD_NAME, spGetRGB(230,230,230), spGetRGB(64,64,64));
 
   spFontSetShadeColor(2016);
   if (font[4])
@@ -80,6 +79,10 @@ void reloadFont()
   spFontAdd(font[5],SP_FONT_GROUP_ASCII,0);//whole ASCII
   spFontAddBorder(font[5],31743);
   spFontReplaceColor(font[5],0,SP_ALPHA_COLOR);
+  
+  int i;
+  for (i = 0; i < 6; i++)
+    spFontMulWidth(font[i],spFloatToFixed(0.9f));
 }
 
 spFontPointer getFont(int number)

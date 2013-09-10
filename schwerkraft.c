@@ -23,9 +23,9 @@ void draw_game(void)
 int calc_game(Uint32 steps)
 {
   calc_music(steps);
-  if (spGetInput()->button[SP_BUTTON_START])
+  if (spGetInput()->button[SP_BUTTON_START_NOWASD])
   {
-    spGetInput()->button[SP_BUTTON_START] = 0;
+    spGetInput()->button[SP_BUTTON_START_NOWASD] = 0;
     return 1;
   }
   return calcLevel(steps);
@@ -34,19 +34,20 @@ int calc_game(Uint32 steps)
 void resize(Uint16 w,Uint16 h)
 {
   spSelectRenderTarget(spGetWindowSurface());
-  spSetPerspective(135.0,(float)spGetWindowSurface()->w/(float)spGetWindowSurface()->h,0.1,100);
+  spSetPerspective(50.0,(float)spGetWindowSurface()->w/(float)spGetWindowSurface()->h,0.1,100);
   reloadFont();
 }
 
 int main(int argc, char **argv)
 {
   spInitCore();
-  //spSetDefaultWindowSize( 800, 480 ); //Creates a 640x480 window at PC instead of 320x240
+  spSetDefaultWindowSize( 800, 480 ); //Creates a 640x480 window at PC instead of 320x240
   screen = spCreateDefaultWindow();
   resize(screen->w,screen->h);
   
   spSetAlphaTest(1);
   spSetLight(1);
+  //spSetLightColor(0,SP_ONE*2,SP_ONE*2,SP_ONE*2);
   
   init_menu_stuff();
   initLevel();

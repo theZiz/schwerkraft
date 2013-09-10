@@ -25,7 +25,7 @@
 #include "font.h"
 #include "trace.h"
 
-#define STAR_COUNT 200
+#define STAR_COUNT 500
 #define BULLET_ACCURACY 11
 #define MAX_COUNTDOWN_TARGETING 20000
 #define MAX_COUNTDOWN_FLYING 40000
@@ -425,11 +425,11 @@ void drawLevel()
 			               85,//0b01010101,
 			              170,//0b10101010,
 			               85);//0b01010101);*/
-			spSetAlphaPattern4x4(64,0);
+			spSetBlending(SP_ONE/2);
 		spMesh3D(planet->mesh,0);
 		//spEllipse3D(0,0,0,planet->radius,planet->radius,12345);
 		if (planet->kind != PLANET_NORMAL)
-			spDeactivatePattern();
+			spSetBlending(SP_ONE);
 		/*Sint32 px,py,pz;
 		spProjectPoint3D(0,0,0,&px,&py,&pz,1);
 		sprintf(buffer,"%.3f",spFixedToFloat(planet->radius));
@@ -518,7 +518,7 @@ int calcLevel(Sint32 steps)
 		if (ki == 0 || momPlayer == 0)
 		{
 			Sint32 slow_shift = 0;
-			if (spGetInput()->button[SP_BUTTON_A])
+			if (spGetInput()->button[SP_BUTTON_A_NOWASD])
 				slow_shift = 2;
 			if (!momPlayer)
 			{
@@ -568,11 +568,11 @@ int calcLevel(Sint32 steps)
 		else
 		{
 			ki_search_best();
-			spGetInput()->button[SP_BUTTON_B] = 1;
+			spGetInput()->button[SP_BUTTON_B_NOWASD] = 1;
 		}
-		if (spGetInput()->button[SP_BUTTON_B])
+		if (spGetInput()->button[SP_BUTTON_B_NOWASD])
 		{
-			spGetInput()->button[SP_BUTTON_B] = 0;
+			spGetInput()->button[SP_BUTTON_B_NOWASD] = 0;
 			game_mode = 1;
 			countdown = MAX_COUNTDOWN_FLYING;
 			if (momPlayer == 0)
@@ -698,7 +698,7 @@ int calcLevel(Sint32 steps)
 				game_mode = 2;
 				printf("Player %i won\n",winner);
 				countdown = 20000;
-				spGetInput()->button[SP_BUTTON_B] = 0;
+				spGetInput()->button[SP_BUTTON_B_NOWASD] = 0;
 			}
 			else
 			{
@@ -709,9 +709,9 @@ int calcLevel(Sint32 steps)
 	}
 	else
 	{
-		if (spGetInput()->button[SP_BUTTON_B] || countdown <= 0)
+		if (spGetInput()->button[SP_BUTTON_B_NOWASD] || countdown <= 0)
 		{
-			spGetInput()->button[SP_BUTTON_B] = 0;
+			spGetInput()->button[SP_BUTTON_B_NOWASD] = 0;
 			return 1;
 		}
 	}
