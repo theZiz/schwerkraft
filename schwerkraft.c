@@ -48,7 +48,7 @@ int main(int argc, char **argv)
   spSetAlphaTest(1);
   spSetLight(1);
   //spSetLightColor(0,SP_ONE*2,SP_ONE*2,SP_ONE*2);
-  
+  spUsePrecalculatedNormals(1);
   init_menu_stuff();
   initLevel();
   init_music();
