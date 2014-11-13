@@ -19,7 +19,7 @@
 */
 #ifndef _MUSIC_H
 #define _MUSIC_H
-#include <SDL/SDL_mixer.h>
+#include <SDL_mixer.h>
 #include "../sparrow3d/sparrow3d.h"
 void init_music();
 void set_volume(int volume);
